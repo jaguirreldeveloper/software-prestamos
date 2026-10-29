@@ -3,9 +3,10 @@ import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 interface Props {
   data: AmortizationRow[];
+  moraRate?: number;
 }
 
-export default function PaymentCalendar({ data }: Props) {
+export default function PaymentCalendar({ data, moraRate = 2 }: Props) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-BO', {
       minimumFractionDigits: 2,
@@ -34,7 +35,28 @@ export default function PaymentCalendar({ data }: Props) {
     return 'pending';
   };
 
+  const calculateMora = (dateStr: string, paymentAmount: number) => {
+    const today = new Date();
+    const paymentDate = new Date(dateStr + 'T12:00:00');
+    if (paymentDate >= today) return { mora: 0, daysLate: 0 };
+    
+    const diffTime = today.getTime() - paymentDate.getTime();
+    const daysLate = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const monthlyMoraRate = moraRate / 100;
+    const dailyMoraRate = monthlyMoraRate / 30;
+    const mora = paymentAmount * dailyMoraRate * daysLate;
+    
+    return { mora, daysLate };
+  };
+
   const payments = data.filter(row => row.number > 0);
+  
+  // Calculate total mora for overdue payments
+  const overduePayments = payments.filter(p => getPaymentStatus(p.paymentDate) === 'overdue');
+  const totalMora = overduePayments.reduce((sum, p) => {
+    const { mora } = calculateMora(p.paymentDate, p.payment);
+    return sum + mora;
+  }, 0);
 
   if (!payments.length) {
     return (
@@ -65,6 +87,25 @@ export default function PaymentCalendar({ data }: Props) {
           </span>
         </div>
       </div>
+
+      {/* Mora Alert */}
+      {totalMora > 0 && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-red-400" />
+            <div>
+              <p className="text-sm font-semibold text-red-300">⚠️ Pagos vencidos detectados</p>
+              <p className="text-xs text-red-400/70">
+                {overduePayments.length} cuota(s) atrasada(s) — Mora acumulada al {moraRate}% mensual
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-red-300">Mora total</p>
+            <p className="text-lg font-bold text-red-400">Bs. {formatCurrency(totalMora)}</p>
+          </div>
+        </div>
+      )}
 
       {/* Timeline View */}
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-6">
@@ -142,6 +183,23 @@ export default function PaymentCalendar({ data }: Props) {
                       <span className="text-xs text-green-400">Capital {(payment.capital / payment.payment * 100).toFixed(0)}%</span>
                       <span className="text-xs text-red-400">Interés {(payment.interest / payment.payment * 100).toFixed(0)}%</span>
                     </div>
+
+                    {/* Mora info for overdue payments */}
+                    {status === 'overdue' && calculateMora(payment.paymentDate, payment.payment).daysLate > 0 && (
+                      <div className="mt-2 bg-red-500/10 border border-red-500/20 rounded-lg p-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-red-300">
+                            ⚠️ {calculateMora(payment.paymentDate, payment.payment).daysLate} día(s) de atraso
+                          </span>
+                          <span className="text-xs font-bold text-red-400">
+                            Mora: Bs. {formatCurrency(calculateMora(payment.paymentDate, payment.payment).mora)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-red-400/60 mt-1">
+                          Total a pagar: Bs. {formatCurrency(payment.payment + calculateMora(payment.paymentDate, payment.payment).mora)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

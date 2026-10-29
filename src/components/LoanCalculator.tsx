@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { LoanParams } from '../types';
-import { Calculator, TrendingUp, Clock, DollarSign } from 'lucide-react';
+import { Calculator, TrendingUp, Clock, DollarSign, Save } from 'lucide-react';
 
 interface Props {
   onCalculate: (params: LoanParams) => void;
   defaultParams: LoanParams;
+  onSave?: (name: string, clientName: string) => void;
 }
 
-export default function LoanCalculator({ onCalculate, defaultParams }: Props) {
+export default function LoanCalculator({ onCalculate, defaultParams, onSave }: Props) {
   const [amount, setAmount] = useState(defaultParams.amount);
   const [monthlyRate, setMonthlyRate] = useState(defaultParams.monthlyRate);
   const [term, setTerm] = useState(defaultParams.term);
@@ -17,6 +18,9 @@ export default function LoanCalculator({ onCalculate, defaultParams }: Props) {
     totalPayment: number;
     totalInterest: number;
   } | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [loanName, setLoanName] = useState('');
+  const [clientName, setClientName] = useState('');
 
   useEffect(() => {
     // Auto-calculate on mount with defaults
@@ -188,6 +192,17 @@ export default function LoanCalculator({ onCalculate, defaultParams }: Props) {
           >
             📊 Calcular Amortización
           </button>
+
+          {/* Save Button */}
+          {onSave && result && (
+            <button
+              onClick={() => setShowSaveModal(true)}
+              className="w-full mt-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold rounded-xl shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              Guardar Préstamo
+            </button>
+          )}
         </div>
       </div>
 
@@ -228,6 +243,58 @@ export default function LoanCalculator({ onCalculate, defaultParams }: Props) {
           </>
         )}
       </div>
+
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-blue-500/30">
+            <h3 className="text-lg font-bold text-white mb-4">💾 Guardar Préstamo</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Nombre del préstamo</label>
+                <input
+                  type="text"
+                  value={loanName}
+                  onChange={(e) => setLoanName(e.target.value)}
+                  placeholder="Ej: Préstamo personal Marzo"
+                  className="w-full px-4 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Nombre del cliente</label>
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="Ej: Juan Pérez"
+                  className="w-full px-4 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    if (loanName && clientName && onSave) {
+                      onSave(loanName, clientName);
+                      setShowSaveModal(false);
+                      setLoanName('');
+                      setClientName('');
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => setShowSaveModal(false)}
+                  className="flex-1 px-4 py-2 bg-slate-700 text-slate-300 rounded-lg font-medium hover:bg-slate-600"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

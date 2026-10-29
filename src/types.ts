@@ -13,9 +13,42 @@ export interface AmortizationRow {
   capital: number;
   finalBalance: number;
   paymentDate: string;
+  isPaid?: boolean;
+  paidDate?: string;
+  paidAmount?: number;
+  extraPayment?: number;
+  mora?: number;
 }
 
 export interface LoanSummary {
+  monthlyPayment: number;
+  totalPayment: number;
+  totalInterest: number;
+}
+
+export interface PaymentRecord {
+  loanId: string;
+  quotaNumber: number;
+  paidDate: string;
+  amount: number;
+  extraAmount: number;
+  notes: string;
+}
+
+export interface SavedLoan {
+  id: string;
+  name: string;
+  clientName: string;
+  params: LoanParams;
+  summary: LoanSummary;
+  createdAt: string;
+  payments: PaymentRecord[];
+}
+
+export interface RateComparison {
+  label: string;
+  rate: number;
+  term: number;
   monthlyPayment: number;
   totalPayment: number;
   totalInterest: number;

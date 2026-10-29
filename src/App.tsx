@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LoanCalculator from './components/LoanCalculator';
 import Dashboard from './components/Dashboard';
 import AmortizationTable from './components/AmortizationTable';
 import PaymentCalendar from './components/PaymentCalendar';
-import { LoanParams, AmortizationRow } from './types';
-import { Calculator, LayoutDashboard, Table, Calendar } from 'lucide-react';
+import PaymentRegister from './components/PaymentRegister';
+import EarlyPaymentSimulator from './components/EarlyPaymentSimulator';
+import LoanHistory from './components/LoanHistory';
+import RateComparator from './components/RateComparator';
+import { LoanParams, AmortizationRow, SavedLoan, PaymentRecord } from './types';
+import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale } from 'lucide-react';
 
 function App() {
   const [activeTab, setActiveTab] = useState('calculator');
@@ -20,6 +24,23 @@ function App() {
     totalPayment: 0,
     totalInterest: 0,
   });
+  const [savedLoans, setSavedLoans] = useState<SavedLoan[]>([]);
+  const [currentLoanId, setCurrentLoanId] = useState<string>('');
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [moraRate, setMoraRate] = useState(2); // 2% mensual de mora
+
+  // Load saved loans from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('savedLoans');
+    if (stored) {
+      setSavedLoans(JSON.parse(stored));
+    }
+  }, []);
+
+  // Save loans to localStorage
+  useEffect(() => {
+    localStorage.setItem('savedLoans', JSON.stringify(savedLoans));
+  }, [savedLoans]);
 
   const handleCalculate = (params: LoanParams) => {
     setLoanParams(params);
@@ -32,11 +53,72 @@ function App() {
     });
   };
 
+  const handleSaveLoan = (name: string, clientName: string) => {
+    const id = `loan_${Date.now()}`;
+    const newLoan: SavedLoan = {
+      id,
+      name,
+      clientName,
+      params: loanParams,
+      summary,
+      createdAt: new Date().toISOString(),
+      payments: [],
+    };
+    setSavedLoans([...savedLoans, newLoan]);
+    setCurrentLoanId(id);
+  };
+
+  const handleLoadLoan = (loan: SavedLoan) => {
+    setLoanParams(loan.params);
+    setSummary(loan.summary);
+    const data = calculateAmortization(loan.params);
+    setAmortizationData(data.rows);
+    setCurrentLoanId(loan.id);
+    setPayments(loan.payments);
+    setActiveTab('table');
+  };
+
+  const handleDeleteLoan = (id: string) => {
+    setSavedLoans(savedLoans.filter(l => l.id !== id));
+    if (currentLoanId === id) setCurrentLoanId('');
+  };
+
+  const handleRegisterPayment = (payment: PaymentRecord) => {
+    const newPayments = [...payments, payment];
+    setPayments(newPayments);
+    
+    // Update amortization data
+    const updatedData = amortizationData.map(row => {
+      if (row.number === payment.quotaNumber) {
+        return {
+          ...row,
+          isPaid: true,
+          paidDate: payment.paidDate,
+          paidAmount: payment.amount,
+          extraPayment: payment.extraAmount,
+        };
+      }
+      return row;
+    });
+    setAmortizationData(updatedData);
+
+    // Update saved loan if exists
+    if (currentLoanId) {
+      setSavedLoans(savedLoans.map(l => 
+        l.id === currentLoanId ? { ...l, payments: newPayments } : l
+      ));
+    }
+  };
+
   const tabs = [
     { id: 'calculator', label: 'Calculadora', icon: Calculator },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'table', label: 'Tabla Amortización', icon: Table },
+    { id: 'table', label: 'Tabla', icon: Table },
     { id: 'calendar', label: 'Calendario', icon: Calendar },
+    { id: 'payments', label: 'Pagos', icon: CreditCard },
+    { id: 'simulator', label: 'Pago Anticipado', icon: Zap },
+    { id: 'comparator', label: 'Comparador', icon: Scale },
+    { id: 'history', label: 'Historial', icon: FolderOpen },
   ];
 
   return (
@@ -51,12 +133,29 @@ function App() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Sistema de Préstamos</h1>
-                <p className="text-xs text-blue-300">Calculadora de Amortización</p>
+                <p className="text-xs text-blue-300">Gestión completa de amortización</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-blue-300">Moneda</p>
-              <p className="text-white font-semibold">Bs. (Bolivianos)</p>
+            <div className="flex items-center gap-4">
+              <div className="text-right hidden md:block">
+                <p className="text-sm text-blue-300">Tasa Mora</p>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={moraRate}
+                    onChange={(e) => setMoraRate(Number(e.target.value))}
+                    className="w-16 px-2 py-1 bg-slate-900/50 border border-slate-600/50 rounded text-white text-sm text-center focus:outline-none focus:border-red-500"
+                    min={0}
+                    max={20}
+                    step={0.5}
+                  />
+                  <span className="text-white text-sm">%</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-blue-300">Moneda</p>
+                <p className="text-white font-semibold">Bs.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -70,14 +169,14 @@ function App() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 px-3 py-3 text-xs md:text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-blue-400 text-blue-300 bg-blue-500/10'
                     : 'border-transparent text-slate-400 hover:text-blue-300 hover:border-blue-500/50'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -90,6 +189,7 @@ function App() {
           <LoanCalculator
             onCalculate={handleCalculate}
             defaultParams={loanParams}
+            onSave={handleSaveLoan}
           />
         )}
         {activeTab === 'dashboard' && (
@@ -103,9 +203,43 @@ function App() {
           <AmortizationTable data={amortizationData} summary={summary} />
         )}
         {activeTab === 'calendar' && (
-          <PaymentCalendar data={amortizationData} />
+          <PaymentCalendar data={amortizationData} moraRate={moraRate} />
+        )}
+        {activeTab === 'payments' && (
+          <PaymentRegister
+            data={amortizationData}
+            payments={payments}
+            onRegisterPayment={handleRegisterPayment}
+            monthlyPayment={summary.monthlyPayment}
+          />
+        )}
+        {activeTab === 'simulator' && (
+          <EarlyPaymentSimulator
+            data={amortizationData}
+            params={loanParams}
+            summary={summary}
+          />
+        )}
+        {activeTab === 'comparator' && (
+          <RateComparator amount={loanParams.amount} />
+        )}
+        {activeTab === 'history' && (
+          <LoanHistory
+            loans={savedLoans}
+            onLoad={handleLoadLoan}
+            onDelete={handleDeleteLoan}
+          />
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-800/30 border-t border-blue-500/10 py-4 mt-8">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-xs text-slate-500">
+            Sistema de Préstamos v2.0 — Amortización Francesa — Datos guardados localmente
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -114,7 +248,6 @@ function calculateAmortization(params: LoanParams) {
   const { amount, monthlyRate, term, startDate } = params;
   const rate = monthlyRate / 100;
   
-  // French amortization formula
   const monthlyPayment = amount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
   const totalPayment = monthlyPayment * term;
   const totalInterest = totalPayment - amount;
@@ -138,6 +271,7 @@ function calculateAmortization(params: LoanParams) {
       capital: i === 0 ? -interest : capital,
       finalBalance: i === 0 ? amount : (i === term ? 0 : newBalance),
       paymentDate: paymentDate.toISOString().split('T')[0],
+      isPaid: false,
     });
 
     balance = newBalance;
