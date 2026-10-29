@@ -199,30 +199,101 @@ const typeColors: Record<string, string> = {
 
 export default function CommitTimeline() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [appliedCommits, setAppliedCommits] = useState<Set<string>>(new Set());
+  const [showScript, setShowScript] = useState(false);
+  const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const toggleApplied = (id: string) => {
+    const newSet = new Set(appliedCommits);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setAppliedCommits(newSet);
+  };
+
+  const copyCommand = (commit: CommitInfo) => {
+    const command = `git add ${commit.files.map(f => f.name).join(' ')} && git commit -m "${commit.type}(${commit.scope}): ${commit.message.toLowerCase()}"`;
+    navigator.clipboard.writeText(command);
+    setCopiedCommand(commit.id);
+    setTimeout(() => setCopiedCommand(null), 2000);
+  };
+
+  const generateScript = () => {
+    const script = commits.map(commit => 
+      `# Commit ${commit.id}: ${commit.message}\ngit add ${commit.files.map(f => f.name).join(' ')}\ngit commit -m "${commit.type}(${commit.scope}): ${commit.message.toLowerCase()}"\n`
+    ).join('\n');
+    
+    const fullScript = `#!/bin/bash\n# Sistema de Préstamos - Commits\n# Generado: ${new Date().toLocaleString()}\n\n${script}`;
+    
+    const blob = new Blob([fullScript], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'apply-commits.sh';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const progress = (appliedCommits.size / commits.length) * 100;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <GitCommit className="w-5 h-5 text-blue-400" />
           Historial de Commits
         </h2>
-        <div className="flex gap-2 text-xs">
-          <span className="px-2 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400">feat</span>
-          <span className="px-2 py-1 rounded-full bg-slate-500/10 border border-slate-500/30 text-slate-400">chore</span>
-          <span className="px-2 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400">style</span>
+        <div className="flex gap-2 flex-wrap">
+          <span className="px-2 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs">feat</span>
+          <span className="px-2 py-1 rounded-full bg-slate-500/10 border border-slate-500/30 text-slate-400 text-xs">chore</span>
+          <span className="px-2 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs">style</span>
+          <button
+            onClick={generateScript}
+            className="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs hover:bg-blue-500/30 transition-all flex items-center gap-1"
+            title="Descargar script .sh"
+          >
+            📥 Descargar Script
+          </button>
         </div>
       </div>
 
+      {/* Progress Bar */}
+      <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-4">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-300">Progreso de aplicación</span>
+            <span className="text-xs text-slate-500">
+              (Marca los commits como aplicados para llevar control)
+            </span>
+          </div>
+          <span className="text-sm font-bold text-blue-400">
+            {appliedCommits.size} / {commits.length}
+          </span>
+        </div>
+        <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+        {appliedCommits.size === commits.length && (
+          <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
+            ✅ ¡Todos los commits aplicados! Ejecuta <code className="bg-slate-900 px-1 rounded">git log --oneline</code> para verificar.
+          </p>
+        )}
+      </div>
+
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="bg-slate-800/50 rounded-xl border border-blue-500/20 p-4 text-center">
           <p className="text-2xl font-bold text-white">{commits.length}</p>
-          <p className="text-xs text-slate-400">Total Commits</p>
+          <p className="text-xs text-slate-400">Total</p>
         </div>
         <div className="bg-slate-800/50 rounded-xl border border-green-500/20 p-4 text-center">
           <p className="text-2xl font-bold text-green-400">{commits.filter(c => c.type === 'feat').length}</p>
@@ -233,8 +304,12 @@ export default function CommitTimeline() {
           <p className="text-xs text-slate-400">Archivos</p>
         </div>
         <div className="bg-slate-800/50 rounded-xl border border-cyan-500/20 p-4 text-center">
-          <p className="text-2xl font-bold text-cyan-400">{commits.filter(c => c.scope === 'calculator' || c.scope === 'dashboard' || c.scope === 'table' || c.scope === 'calendar' || c.scope === 'payments' || c.scope === 'simulator' || c.scope === 'comparator' || c.scope === 'history').length}</p>
-          <p className="text-xs text-slate-400">Componentes</p>
+          <p className="text-2xl font-bold text-cyan-400">{appliedCommits.size}</p>
+          <p className="text-xs text-slate-400">Aplicados</p>
+        </div>
+        <div className="bg-slate-800/50 rounded-xl border border-yellow-500/20 p-4 text-center">
+          <p className="text-2xl font-bold text-yellow-400">{commits.length - appliedCommits.size}</p>
+          <p className="text-xs text-slate-400">Pendientes</p>
         </div>
       </div>
 
@@ -257,7 +332,9 @@ export default function CommitTimeline() {
                   </div>
 
                   {/* Card */}
-                  <div className={`flex-1 rounded-xl border ${colors.border} ${colors.bg} p-4 transition-all`}>
+                  <div className={`flex-1 rounded-xl border ${colors.border} ${colors.bg} p-4 transition-all ${
+                    appliedCommits.has(commit.id) ? 'ring-1 ring-green-500/30' : ''
+                  }`}>
                     {/* Header */}
                     <button
                       onClick={() => toggleExpand(commit.id)}
@@ -270,6 +347,11 @@ export default function CommitTimeline() {
                           </span>
                           <span className="text-xs text-slate-500">({commit.scope})</span>
                           <span className="text-xs text-slate-600 font-mono">{commit.hash}</span>
+                          {appliedCommits.has(commit.id) && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/30 text-green-400">
+                              ✓ aplicado
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-white font-medium">{commit.message}</p>
                       </div>
@@ -305,9 +387,38 @@ export default function CommitTimeline() {
                         {/* Command */}
                         <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/30">
                           <p className="text-xs text-slate-400 mb-1">Comando Git:</p>
-                          <code className="text-xs text-green-400 font-mono">
+                          <code className="text-xs text-green-400 font-mono break-all">
+                            git add {commit.files.map(f => f.name).join(' ')}<br/>
                             git commit -m "{commit.type}({commit.scope}): {commit.message.toLowerCase()}"
                           </code>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-2 flex-wrap">
+                          <button
+                            onClick={() => copyCommand(commit)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-lg text-xs text-slate-300 transition-all"
+                          >
+                            {copiedCommand === commit.id ? (
+                              <>✓ Copiado</>
+                            ) : (
+                              <>📋 Copiar comando</>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => toggleApplied(commit.id)}
+                            className={`flex items-center gap-1 px-3 py-1.5 border rounded-lg text-xs transition-all ${
+                              appliedCommits.has(commit.id)
+                                ? 'bg-green-500/20 border-green-500/30 text-green-300 hover:bg-green-500/30'
+                                : 'bg-slate-700/50 border-slate-600/50 text-slate-300 hover:bg-slate-700'
+                            }`}
+                          >
+                            {appliedCommits.has(commit.id) ? (
+                              <>✅ Aplicado</>
+                            ) : (
+                              <>⏳ Marcar como aplicado</>
+                            )}
+                          </button>
                         </div>
                       </div>
                     )}
@@ -315,6 +426,50 @@ export default function CommitTimeline() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-6">
+        <h3 className="text-md font-semibold text-white mb-4 flex items-center gap-2">
+          🚀 ¿Cómo aplicar estos commits?
+        </h3>
+        <div className="space-y-3 text-sm">
+          <div className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 border border-blue-500/30 rounded-full flex items-center justify-center text-xs text-blue-300 font-bold">1</span>
+            <div>
+              <p className="text-white font-medium">Inicializa Git en tu proyecto</p>
+              <code className="text-xs text-green-400 bg-slate-900/50 px-2 py-1 rounded mt-1 inline-block">git init</code>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 border border-blue-500/30 rounded-full flex items-center justify-center text-xs text-blue-300 font-bold">2</span>
+            <div>
+              <p className="text-white font-medium">Descarga el script o copia los comandos</p>
+              <p className="text-xs text-slate-400">Usa el botón "📥 Descargar Script" o copia cada comando individualmente</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 border border-blue-500/30 rounded-full flex items-center justify-center text-xs text-blue-300 font-bold">3</span>
+            <div>
+              <p className="text-white font-medium">Ejecuta en tu terminal</p>
+              <code className="text-xs text-green-400 bg-slate-900/50 px-2 py-1 rounded mt-1 inline-block">chmod +x apply-commits.sh && ./apply-commits.sh</code>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 border border-blue-500/30 rounded-full flex items-center justify-center text-xs text-blue-300 font-bold">4</span>
+            <div>
+              <p className="text-white font-medium">Verifica el historial</p>
+              <code className="text-xs text-green-400 bg-slate-900/50 px-2 py-1 rounded mt-1 inline-block">git log --oneline --graph</code>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 bg-green-500/20 border border-green-500/30 rounded-full flex items-center justify-center text-xs text-green-300 font-bold">✓</span>
+            <div>
+              <p className="text-white font-medium">Marca los commits como aplicados aquí</p>
+              <p className="text-xs text-slate-400">Usa el botón "⏳ Marcar como aplicado" en cada commit para llevar control</p>
+            </div>
           </div>
         </div>
       </div>
