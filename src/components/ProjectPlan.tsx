@@ -31,19 +31,19 @@ const phases: Phase[] = [
     tasks: [
       { name: 'Setup del proyecto', status: 'done' },
       { name: 'Definición de tipos', status: 'done' },
-      { name: 'Calculadora base', status: 'done' },
-      { name: 'Tabla de amortización', status: 'done' },
+      { name: 'Componente principal', status: 'done' },
     ],
   },
   {
     id: '2',
-    name: 'Visualización',
+    name: 'Módulos Core',
     weeks: 'Semanas 3-4',
     status: 'completed',
     tasks: [
+      { name: 'Calculadora de préstamos', status: 'done' },
       { name: 'Dashboard con gráficos', status: 'done' },
+      { name: 'Tabla de amortización', status: 'done' },
       { name: 'Calendario de pagos', status: 'done' },
-      { name: 'Estilos de impresión', status: 'done' },
     ],
   },
   {
@@ -60,19 +60,30 @@ const phases: Phase[] = [
   },
   {
     id: '4',
-    name: 'Documentación',
+    name: 'Estilos y Documentación',
     weeks: 'Semana 7',
-    status: 'in-progress',
+    status: 'completed',
     tasks: [
+      { name: 'Estilos de impresión', status: 'done' },
       { name: 'Plan del proyecto', status: 'done' },
       { name: 'Timeline de commits', status: 'done' },
-      { name: 'README y docs', status: 'wip' },
     ],
   },
   {
     id: '5',
+    name: 'Mejoras Avanzadas',
+    weeks: 'Semana 8',
+    status: 'completed',
+    tasks: [
+      { name: 'Edición de préstamos', status: 'done' },
+      { name: 'Duplicación y exportación', status: 'done' },
+      { name: 'Gestión de estados', status: 'done' },
+    ],
+  },
+  {
+    id: '6',
     name: 'Backend (Futuro)',
-    weeks: 'Semanas 8-12',
+    weeks: 'Semanas 9-14',
     status: 'pending',
     tasks: [
       { name: 'API REST', status: 'todo' },
@@ -143,8 +154,24 @@ const modules: Module[] = [
     id: '8',
     name: 'Historial',
     icon: '📂',
-    description: 'Persistencia de préstamos',
-    features: ['localStorage', 'Cargar préstamos', 'Eliminar', 'Resumen portafolio'],
+    description: 'Gestión completa del ciclo de vida',
+    features: ['Editar préstamos', 'Duplicar', 'Exportar JSON', 'Estados', 'Búsqueda', 'Filtros'],
+    status: 'completed',
+  },
+  {
+    id: '9',
+    name: 'Timeline Commits',
+    icon: '🔀',
+    description: 'Visualización del historial de commits',
+    features: ['17 commits', 'Copiar comandos', 'Marcar aplicados', 'Descargar script'],
+    status: 'completed',
+  },
+  {
+    id: '10',
+    name: 'Plan Proyecto',
+    icon: '📋',
+    description: 'Visualización interactiva del plan',
+    features: ['6 secciones', 'Barras progreso', 'Matriz riesgos', 'Roadmap'],
     status: 'completed',
   },
 ];
@@ -680,7 +707,7 @@ export default function ProjectPlan() {
             <div className="space-y-4">
               <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-700/30">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400">Fase 4</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400">Fase 6</span>
                   <p className="text-white font-medium">Backend</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-slate-400">
@@ -691,7 +718,7 @@ export default function ProjectPlan() {
               </div>
               <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-700/30">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">Fase 5</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">Fase 7</span>
                   <p className="text-white font-medium">Funcionalidades Avanzadas</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-slate-400">
@@ -702,7 +729,7 @@ export default function ProjectPlan() {
               </div>
               <div className="bg-slate-900/30 rounded-lg p-4 border border-slate-700/30">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400">Fase 6</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400">Fase 8</span>
                   <p className="text-white font-medium">Optimización</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-slate-400">
