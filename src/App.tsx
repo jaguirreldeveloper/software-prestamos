@@ -7,8 +7,9 @@ import PaymentRegister from './components/PaymentRegister';
 import EarlyPaymentSimulator from './components/EarlyPaymentSimulator';
 import LoanHistory from './components/LoanHistory';
 import RateComparator from './components/RateComparator';
+import CommitTimeline from './components/CommitTimeline';
 import { LoanParams, AmortizationRow, SavedLoan, PaymentRecord } from './types';
-import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale } from 'lucide-react';
+import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale, GitBranch } from 'lucide-react';
 
 function App() {
   const [activeTab, setActiveTab] = useState('calculator');
@@ -119,6 +120,7 @@ function App() {
     { id: 'simulator', label: 'Pago Anticipado', icon: Zap },
     { id: 'comparator', label: 'Comparador', icon: Scale },
     { id: 'history', label: 'Historial', icon: FolderOpen },
+    { id: 'commits', label: 'Commits', icon: GitBranch },
   ];
 
   return (
@@ -229,6 +231,9 @@ function App() {
             onLoad={handleLoadLoan}
             onDelete={handleDeleteLoan}
           />
+        )}
+        {activeTab === 'commits' && (
+          <CommitTimeline />
         )}
       </main>
 
