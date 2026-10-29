@@ -65,6 +65,7 @@ function App() {
       summary,
       createdAt: new Date().toISOString(),
       payments: [],
+      status: 'active',
     };
     setSavedLoans([...savedLoans, newLoan]);
     setCurrentLoanId(id);
@@ -83,6 +84,36 @@ function App() {
   const handleDeleteLoan = (id: string) => {
     setSavedLoans(savedLoans.filter(l => l.id !== id));
     if (currentLoanId === id) setCurrentLoanId('');
+  };
+
+  const handleUpdateLoan = (id: string, updates: Partial<SavedLoan>) => {
+    setSavedLoans(savedLoans.map(l => 
+      l.id === id ? { ...l, ...updates, updatedAt: new Date().toISOString() } : l
+    ));
+  };
+
+  const handleDuplicateLoan = (loan: SavedLoan) => {
+    const newLoan: SavedLoan = {
+      ...loan,
+      id: `loan_${Date.now()}`,
+      name: `${loan.name} (Copia)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: undefined,
+      payments: [],
+      status: 'active',
+    };
+    setSavedLoans([...savedLoans, newLoan]);
+  };
+
+  const handleExportLoan = (loan: SavedLoan) => {
+    const data = JSON.stringify(loan, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `prestamo_${loan.name.replace(/\s+/g, '_')}_${loan.id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleRegisterPayment = (payment: PaymentRecord) => {
@@ -232,6 +263,9 @@ function App() {
             loans={savedLoans}
             onLoad={handleLoadLoan}
             onDelete={handleDeleteLoan}
+            onUpdate={handleUpdateLoan}
+            onDuplicate={handleDuplicateLoan}
+            onExport={handleExportLoan}
           />
         )}
         {activeTab === 'commits' && (

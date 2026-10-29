@@ -42,7 +42,10 @@ export interface SavedLoan {
   params: LoanParams;
   summary: LoanSummary;
   createdAt: string;
+  updatedAt?: string;
   payments: PaymentRecord[];
+  status: 'active' | 'completed' | 'cancelled';
+  notes?: string;
 }
 
 export interface RateComparison {
