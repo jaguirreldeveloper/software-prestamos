@@ -172,6 +172,71 @@ const commits: CommitInfo[] = [
     color: 'pink',
     icon: '🎨',
   },
+  {
+    id: '13',
+    hash: 'w7x8y9z',
+    type: 'chore',
+    scope: 'docs',
+    message: 'Crear documento de planificación del proyecto PROJECT_PLAN.md',
+    files: [
+      { name: 'PROJECT_PLAN.md', description: 'Plan completo con 12 secciones: objetivos, alcance, arquitectura, módulos, cronograma, riesgos, etc.' },
+    ],
+    description: 'Documento profesional de planificación que cubre resumen ejecutivo, objetivos, alcance, arquitectura técnica, 8 módulos detallados, cronograma con 12 commits, requisitos, metodología, matriz de riesgos, criterios de éxito, entregables y roadmap futuro.',
+    color: 'teal',
+    icon: '📋',
+  },
+  {
+    id: '14',
+    hash: 'a0b1c2d',
+    type: 'feat',
+    scope: 'plan',
+    message: 'Agregar componente ProjectPlan con visualización interactiva del proyecto',
+    files: [
+      { name: 'src/components/ProjectPlan.tsx', description: '6 secciones navegables: Resumen, Objetivos, Módulos, Fases, Técnico, Riesgos' },
+    ],
+    description: 'Componente visual con estadísticas, barras de progreso, checklist de objetivos, módulos expandibles, fases con tareas, stack tecnológico, fórmulas matemáticas y matriz de riesgos. Integrado como nueva pestaña en la navegación.',
+    color: 'indigo',
+    icon: '📊',
+  },
+  {
+    id: '15',
+    hash: 'e3f4g5h',
+    type: 'feat',
+    scope: 'types',
+    message: 'Agregar campos status, updatedAt y notes a interfaz SavedLoan',
+    files: [
+      { name: 'src/types.ts', description: 'Nuevos campos: status (active/completed/cancelled), updatedAt, notes' },
+    ],
+    description: 'Extensión de la interfaz SavedLoan para soportar estados de préstamo (activo, completado, cancelado), fecha de última edición y campo de notas para observaciones.',
+    color: 'purple',
+    icon: '📐',
+  },
+  {
+    id: '16',
+    hash: 'i6j7k8l',
+    type: 'feat',
+    scope: 'app',
+    message: 'Agregar handlers para update, duplicate y export de préstamos',
+    files: [
+      { name: 'src/App.tsx', description: 'Nuevas funciones: handleUpdateLoan, handleDuplicateLoan, handleExportLoan' },
+    ],
+    description: 'Funciones para actualizar préstamos (con recálculo automático si cambian parámetros), duplicar préstamos y exportar datos en formato JSON. Integración con el componente LoanHistory mejorado.',
+    color: 'blue',
+    icon: '🔧',
+  },
+  {
+    id: '17',
+    hash: 'm9n0o1p',
+    type: 'feat',
+    scope: 'history',
+    message: 'Mejorar módulo de historial con edición, duplicación, exportación y estados',
+    files: [
+      { name: 'src/components/LoanHistory.tsx', description: 'Búsqueda, filtros, edición, duplicar, exportar JSON, estados, notas, progreso, confirmación' },
+    ],
+    description: 'Rediseño completo del historial: búsqueda por nombre/cliente, filtros por estado, modal de edición con recálculo automático, duplicación de préstamos, exportación JSON, cambio de estado (activo/completado/cancelado), notas, barra de progreso, vista de detalles y confirmación de eliminación.',
+    color: 'emerald',
+    icon: '💎',
+  },
 ];
 
 const colorMap: Record<string, { bg: string; border: string; text: string; dot: string }> = {
@@ -293,7 +358,7 @@ export default function CommitTimeline() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="bg-slate-800/50 rounded-xl border border-blue-500/20 p-4 text-center">
           <p className="text-2xl font-bold text-white">{commits.length}</p>
-          <p className="text-xs text-slate-400">Total</p>
+          <p className="text-xs text-slate-400">Total Commits</p>
         </div>
         <div className="bg-slate-800/50 rounded-xl border border-green-500/20 p-4 text-center">
           <p className="text-2xl font-bold text-green-400">{commits.filter(c => c.type === 'feat').length}</p>
