@@ -4,10 +4,14 @@ import {
   Printer, Search, ChevronUp, ChevronDown, 
   ChevronRight, ChevronLeft, TrendingUp, 
   Target, Calendar, Percent, FileSpreadsheet,
-  Copy, CheckCircle2, FileText, Info
+  Copy, CheckCircle2, FileText, Filter, Bell,
+  BarChart3, X
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, AlignmentType, TextRun } from 'docx';
+import { saveAs } from 'file-saver';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type Props = {
   rows: AmortizationRow[];
@@ -30,6 +34,15 @@ export default function AmortizationTable({ rows, summary }: Props) {
   const [copiedRow, setCopiedRow] = useState<number | null>(null);
   const [groupMode, setGroupMode] = useState<GroupMode>('monthly');
   const [tooltipRow, setTooltipRow] = useState<number | null>(null);
+  
+  // Nuevos estados para las mejoras
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [amountMin, setAmountMin] = useState<number | ''>('');
+  const [amountMax, setAmountMax] = useState<number | ''>('');
+  const [showChart, setShowChart] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
@@ -54,19 +67,77 @@ export default function AmortizationTable({ rows, summary }: Props) {
     return { breakevenRow, highestInterestRow, avgInterest, nextPayment };
   }, [rows]);
 
+  // Notificaciones de vencimiento
+  const notifications = useMemo(() => {
+    const today = new Date();
+    const in7Days = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const in30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    
+    const upcoming: AmortizationRow[] = [];
+    const overdue: AmortizationRow[] = [];
+    
+    rows.forEach((row: AmortizationRow) => {
+      if (row.number === 0 || row.isPaid) return;
+      const paymentDate = new Date(row.paymentDate + 'T12:00:00');
+      
+      if (paymentDate < today) {
+        overdue.push(row);
+      } else if (paymentDate <= in7Days) {
+        upcoming.push(row);
+      }
+    });
+    
+    return { upcoming, overdue };
+  }, [rows]);
+
   const filteredRows = useMemo(() => {
     let result = rows.filter((row: AmortizationRow) => {
-      if (!searchTerm) return true;
-      const searchLower = searchTerm.toLowerCase();
-      return row.number.toString().includes(searchLower) || formatDate(row.paymentDate).toLowerCase().includes(searchLower);
+      // Búsqueda por texto
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        if (!row.number.toString().includes(searchLower) && 
+            !formatDate(row.paymentDate).toLowerCase().includes(searchLower)) {
+          return false;
+        }
+      }
+      
+      // Filtro por fecha
+      if (dateFrom) {
+        const rowDate = new Date(row.paymentDate + 'T12:00:00');
+        const fromDate = new Date(dateFrom + 'T12:00:00');
+        if (rowDate < fromDate) return false;
+      }
+      if (dateTo) {
+        const rowDate = new Date(row.paymentDate + 'T12:00:00');
+        const toDate = new Date(dateTo + 'T12:00:00');
+        if (rowDate > toDate) return false;
+      }
+      
+      // Filtro por monto
+      if (amountMin !== '' && row.payment < amountMin) return false;
+      if (amountMax !== '' && row.payment > amountMax) return false;
+      
+      return true;
     });
+    
     result.sort((a: AmortizationRow, b: AmortizationRow) => {
       const aVal: any = sortField === 'paymentDate' ? new Date(a[sortField]).getTime() : a[sortField];
       const bVal: any = sortField === 'paymentDate' ? new Date(b[sortField]).getTime() : b[sortField];
       return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
     });
+    
     return result;
-  }, [rows, searchTerm, sortField, sortDirection]);
+  }, [rows, searchTerm, sortField, sortDirection, dateFrom, dateTo, amountMin, amountMax]);
+
+  // Datos para el gráfico de evolución
+  const chartData = useMemo(() => {
+    return rows.filter((r: AmortizationRow) => r.number > 0).map((row: AmortizationRow) => ({
+      name: 'M' + row.number,
+      saldo: row.finalBalance,
+      interes: row.interest,
+      capital: row.capital,
+    }));
+  }, [rows]);
 
   // Agrupación temporal
   const groupedRows = useMemo(() => {
@@ -126,6 +197,14 @@ export default function AmortizationTable({ rows, summary }: Props) {
     }
   };
 
+  const clearFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setAmountMin('');
+    setAmountMax('');
+    setSearchTerm('');
+  };
+
   const handleExportExcel = () => {
     const headers = ['No.', 'Saldo Inicial', 'Cuota Fija', 'Interes', 'Capital', 'Saldo Final', 'Fecha de Pago', '% Interes', '% Capital'];
     const csvRows = rows.filter((r: AmortizationRow) => r.number > 0).map((row: AmortizationRow) => [
@@ -150,7 +229,6 @@ export default function AmortizationTable({ rows, summary }: Props) {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     
-    // Encabezado
     doc.setFontSize(18);
     doc.setTextColor(40, 60, 100);
     doc.text('Tabla de Amortización', 14, 22);
@@ -160,7 +238,6 @@ export default function AmortizationTable({ rows, summary }: Props) {
     doc.text('Sistema de Gestión de Préstamos', 14, 28);
     doc.text('Fecha: ' + new Date().toLocaleDateString('es-BO'), 14, 33);
     
-    // Resumen
     doc.setFontSize(11);
     doc.setTextColor(40, 60, 100);
     doc.text('Resumen del Préstamo', 14, 42);
@@ -171,7 +248,6 @@ export default function AmortizationTable({ rows, summary }: Props) {
     doc.text('Total a Pagar: Bs. ' + formatCurrency(summary.totalPayment), 14, 53);
     doc.text('Total Intereses: Bs. ' + formatCurrency(summary.totalInterest), 14, 58);
     
-    // Tabla
     const tableColumn = ['No.', 'Saldo Inicial', 'Cuota', 'Interés', 'Capital', 'Saldo Final', 'Fecha'];
     const tableRows: any[] = [];
     
@@ -198,6 +274,67 @@ export default function AmortizationTable({ rows, summary }: Props) {
     });
     
     doc.save('tabla_amortizacion.pdf');
+  };
+
+  const handleExportWord = async () => {
+    const tableRows = rows.filter((r: AmortizationRow) => r.number > 0).map((row: AmortizationRow) => {
+      return new TableRow({
+        children: [
+          new TableCell({ children: [new Paragraph(row.number.toString())], width: { size: 10, type: WidthType.PERCENTAGE } }),
+          new TableCell({ children: [new Paragraph(formatCurrency(row.initialBalance))], width: { size: 15, type: WidthType.PERCENTAGE } }),
+          new TableCell({ children: [new Paragraph(formatCurrency(row.payment))], width: { size: 15, type: WidthType.PERCENTAGE } }),
+          new TableCell({ children: [new Paragraph(formatCurrency(row.interest))], width: { size: 15, type: WidthType.PERCENTAGE } }),
+          new TableCell({ children: [new Paragraph(formatCurrency(row.capital))], width: { size: 15, type: WidthType.PERCENTAGE } }),
+          new TableCell({ children: [new Paragraph(formatCurrency(Math.max(0, row.finalBalance)))], width: { size: 15, type: WidthType.PERCENTAGE } }),
+          new TableCell({ children: [new Paragraph(formatDate(row.paymentDate))], width: { size: 15, type: WidthType.PERCENTAGE } }),
+        ],
+      });
+    });
+
+    const doc = new Document({
+      sections: [{
+        children: [
+          new Paragraph({
+            text: 'Tabla de Amortización',
+            heading: 'Heading1',
+            alignment: AlignmentType.CENTER,
+          }),
+          new Paragraph({
+            text: 'Sistema de Gestión de Préstamos - ' + new Date().toLocaleDateString('es-BO'),
+            alignment: AlignmentType.CENTER,
+          }),
+          new Paragraph({ text: '' }),
+          new Paragraph({
+            text: 'Resumen del Préstamo',
+            heading: 'Heading2',
+          }),
+          new Paragraph({ text: 'Cuota Mensual: Bs. ' + formatCurrency(summary.monthlyPayment) }),
+          new Paragraph({ text: 'Total a Pagar: Bs. ' + formatCurrency(summary.totalPayment) }),
+          new Paragraph({ text: 'Total Intereses: Bs. ' + formatCurrency(summary.totalInterest) }),
+          new Paragraph({ text: '' }),
+          new Table({
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'No.', bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Saldo Inicial', bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Cuota', bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Interés', bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Capital', bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Saldo Final', bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Fecha', bold: true })] })] }),
+                ],
+              }),
+              ...tableRows,
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+          }),
+        ],
+      }],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, 'tabla_amortizacion.docx');
   };
 
   const handleCopyRow = (row: AmortizationRow) => {
@@ -247,6 +384,8 @@ export default function AmortizationTable({ rows, summary }: Props) {
   const totalInterest = rows.reduce((sum: number, row: AmortizationRow) => sum + row.interest, 0);
   const totalCapital = rows.filter((r: AmortizationRow) => r.capital > 0).reduce((sum: number, row: AmortizationRow) => sum + row.capital, 0);
 
+  const hasActiveFilters = dateFrom || dateTo || amountMin !== '' || amountMax !== '';
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -272,12 +411,30 @@ export default function AmortizationTable({ rows, summary }: Props) {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Search and Filters */}
       <div className="flex flex-col md:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input type="text" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} placeholder="Buscar por cuota # o fecha..." className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
         </div>
+        <button onClick={() => setShowFilters(!showFilters)} className={'px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ' + (showFilters || hasActiveFilters ? 'bg-blue-500/20 border border-blue-500/50 text-blue-300' : 'bg-slate-800/50 border border-slate-600/50 text-slate-300 hover:bg-slate-700/50')}>
+          <Filter className="w-4 h-4" />
+          Filtros
+          {hasActiveFilters && <span className="w-2 h-2 bg-blue-400 rounded-full"></span>}
+        </button>
+        <button onClick={() => setShowChart(!showChart)} className={'px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ' + (showChart ? 'bg-green-500/20 border border-green-500/50 text-green-300' : 'bg-slate-800/50 border border-slate-600/50 text-slate-300 hover:bg-slate-700/50')}>
+          <BarChart3 className="w-4 h-4" />
+          Gráfico
+        </button>
+        <button onClick={() => setShowNotifications(!showNotifications)} className={'px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 relative ' + (notifications.upcoming.length > 0 || notifications.overdue.length > 0 ? 'bg-yellow-500/20 border border-yellow-500/50 text-yellow-300' : 'bg-slate-800/50 border border-slate-600/50 text-slate-300 hover:bg-slate-700/50')}>
+          <Bell className="w-4 h-4" />
+          Alertas
+          {(notifications.upcoming.length + notifications.overdue.length) > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+              {notifications.upcoming.length + notifications.overdue.length}
+            </span>
+          )}
+        </button>
         <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500">
           <option value={12}>12 por pagina</option>
           <option value={24}>24 por pagina</option>
@@ -285,6 +442,103 @@ export default function AmortizationTable({ rows, summary }: Props) {
           <option value={filteredRows.length}>Todas</option>
         </select>
       </div>
+
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-blue-500/20 p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-sm font-semibold text-white">🔍 Filtros Avanzados</h3>
+            {hasActiveFilters && (
+              <button onClick={clearFilters} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                <X className="w-3 h-3" /> Limpiar filtros
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+              <label className="text-xs text-slate-400 mb-1 block">Fecha desde</label>
+              <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }} className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 mb-1 block">Fecha hasta</label>
+              <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }} className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 mb-1 block">Monto mínimo (Bs.)</label>
+              <input type="number" value={amountMin} onChange={(e) => { setAmountMin(e.target.value === '' ? '' : Number(e.target.value)); setCurrentPage(1); }} placeholder="0.00" className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 mb-1 block">Monto máximo (Bs.)</label>
+              <input type="number" value={amountMax} onChange={(e) => { setAmountMax(e.target.value === '' ? '' : Number(e.target.value)); setCurrentPage(1); }} placeholder="99999.99" className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications Panel */}
+      {showNotifications && (
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-yellow-500/20 p-4">
+          <h3 className="text-sm font-semibold text-white mb-3">🔔 Alertas de Vencimiento</h3>
+          {notifications.overdue.length > 0 && (
+            <div className="mb-3">
+              <p className="text-xs text-red-400 font-semibold mb-2">❌ Cuotas Vencidas ({notifications.overdue.length})</p>
+              <div className="space-y-2">
+                {notifications.overdue.map((row: AmortizationRow) => (
+                  <div key={row.number} className="bg-red-500/10 border border-red-500/20 rounded-lg p-2 flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-white font-medium">Cuota #{row.number}</p>
+                      <p className="text-xs text-slate-400">Venció: {formatDate(row.paymentDate)}</p>
+                    </div>
+                    <p className="text-sm text-red-400 font-semibold">Bs. {formatCurrency(row.payment)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {notifications.upcoming.length > 0 && (
+            <div>
+              <p className="text-xs text-yellow-400 font-semibold mb-2">⚠️ Próximas a Vencer (7 días) ({notifications.upcoming.length})</p>
+              <div className="space-y-2">
+                {notifications.upcoming.map((row: AmortizationRow) => (
+                  <div key={row.number} className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-2 flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-white font-medium">Cuota #{row.number}</p>
+                      <p className="text-xs text-slate-400">Vence: {formatDate(row.paymentDate)}</p>
+                    </div>
+                    <p className="text-sm text-yellow-400 font-semibold">Bs. {formatCurrency(row.payment)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {notifications.overdue.length === 0 && notifications.upcoming.length === 0 && (
+            <p className="text-sm text-slate-400 text-center py-4">✅ No hay alertas pendientes</p>
+          )}
+        </div>
+      )}
+
+      {/* Evolution Chart */}
+      {showChart && viewMode === 'detailed' && (
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-green-500/20 p-4">
+          <h3 className="text-sm font-semibold text-white mb-3">📈 Evolución del Préstamo</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis dataKey="name" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+              <Tooltip 
+                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                itemStyle={{ color: '#fff' }}
+                formatter={(value: number) => 'Bs. ' + formatCurrency(value)}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="saldo" stroke="#3b82f6" strokeWidth={2} name="Saldo Restante" dot={false} />
+              <Line type="monotone" dataKey="interes" stroke="#ef4444" strokeWidth={2} name="Interés" dot={false} />
+              <Line type="monotone" dataKey="capital" stroke="#10b981" strokeWidth={2} name="Capital" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Metrics */}
       {viewMode === 'detailed' && (
@@ -350,40 +604,40 @@ export default function AmortizationTable({ rows, summary }: Props) {
 
       {/* Tabla Principal */}
       {groupMode === 'monthly' && (
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-blue-500/20 overflow-hidden">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-blue-500/20 overflow-hidden print:border-0 print:bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
-                <tr className="border-b border-blue-500/20">
-                  <th onClick={() => handleSort('number')} className="px-4 py-3 text-left text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors">
+            <table className="w-full text-sm print:text-xs">
+              <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10 print:bg-white print:text-black">
+                <tr className="border-b border-blue-500/20 print:border-gray-300">
+                  <th onClick={() => handleSort('number')} className="px-4 py-3 text-left text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                     <div className="flex items-center gap-1">No. <SortIcon field="number" /></div>
                   </th>
                   {viewMode !== 'compact' && (
-                    <th onClick={() => handleSort('initialBalance')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors">
+                    <th onClick={() => handleSort('initialBalance')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                       <div className="flex items-center justify-end gap-1">Saldo Inicial <SortIcon field="initialBalance" /></div>
                     </th>
                   )}
-                  <th onClick={() => handleSort('payment')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors">
+                  <th onClick={() => handleSort('payment')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                     <div className="flex items-center justify-end gap-1">Cuota <SortIcon field="payment" /></div>
                   </th>
-                  <th onClick={() => handleSort('interest')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors relative">
+                  <th onClick={() => handleSort('interest')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                     <div className="flex items-center justify-end gap-1">Interes <SortIcon field="interest" /></div>
                   </th>
-                  <th onClick={() => handleSort('capital')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors">
+                  <th onClick={() => handleSort('capital')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                     <div className="flex items-center justify-end gap-1">Capital <SortIcon field="capital" /></div>
                   </th>
                   {viewMode !== 'compact' && (
-                    <th onClick={() => handleSort('finalBalance')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors">
+                    <th onClick={() => handleSort('finalBalance')} className="px-4 py-3 text-right text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                       <div className="flex items-center justify-end gap-1">Saldo Final <SortIcon field="finalBalance" /></div>
                     </th>
                   )}
-                  <th onClick={() => handleSort('paymentDate')} className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors">
+                  <th onClick={() => handleSort('paymentDate')} className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider cursor-pointer hover:bg-blue-500/10 transition-colors print:text-black">
                     <div className="flex items-center justify-center gap-1">Fecha <SortIcon field="paymentDate" /></div>
                   </th>
                   {viewMode === 'detailed' && (
                     <>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider">Tendencia</th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider">Progreso</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider print:hidden">Tendencia</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider print:hidden">Progreso</th>
                     </>
                   )}
                 </tr>
@@ -398,7 +652,6 @@ export default function AmortizationTable({ rows, summary }: Props) {
                   const capitalPercent = row.payment > 0 ? (row.capital / row.payment) * 100 : 0;
                   const progressPercent = row.initialBalance > 0 ? ((row.initialBalance - Math.max(0, row.finalBalance)) / row.initialBalance) * 100 : 0;
                   
-                  // Datos para sparkline
                   const prevRows = rows.filter((r: AmortizationRow) => r.number > 0 && r.number <= row.number).slice(-6);
                   const interestData = prevRows.map((r: AmortizationRow) => r.interest);
                   const capitalData = prevRows.map((r: AmortizationRow) => r.capital);
@@ -412,31 +665,31 @@ export default function AmortizationTable({ rows, summary }: Props) {
                               onClick={() => viewMode === 'detailed' && row.number > 0 && setExpandedRow(isExpanded ? null : row.number)}
                               onMouseEnter={() => setTooltipRow(row.number)}
                               onMouseLeave={() => setTooltipRow(null)}
-                              className={'border-b border-slate-700/30 transition-colors relative ' + (row.number === 0 ? 'bg-slate-900/30' : '') + (row.finalBalance === 0 ? ' bg-green-500/5' : '') + (isBreakeven ? ' bg-blue-500/10' : '') + (isHighestInterest ? ' bg-red-500/5' : '') + (isNextPayment ? ' bg-yellow-500/10' : '') + (viewMode === 'detailed' && row.number > 0 ? ' cursor-pointer hover:bg-blue-500/5' : ' hover:bg-blue-500/5')}
+                              className={'border-b border-slate-700/30 transition-colors relative print:border-gray-200 ' + (row.number === 0 ? 'bg-slate-900/30' : '') + (row.finalBalance === 0 ? ' bg-green-500/5' : '') + (isBreakeven ? ' bg-blue-500/10' : '') + (isHighestInterest ? ' bg-red-500/5' : '') + (isNextPayment ? ' bg-yellow-500/10' : '') + (viewMode === 'detailed' && row.number > 0 ? ' cursor-pointer hover:bg-blue-500/5' : ' hover:bg-blue-500/5')}
                             >
-                              <td className="px-4 py-3 text-white font-medium">
+                              <td className="px-4 py-3 text-white font-medium print:text-black">
                                 <div className="flex items-center gap-2">
                                   {row.number}
-                                  {isBreakeven && <span className="text-blue-400" title="Punto de equilibrio">🎯</span>}
-                                  {isHighestInterest && <span className="text-red-400" title="Mayor interes">🔺</span>}
-                                  {isNextPayment && <span className="text-yellow-400" title="Proximo pago">📅</span>}
+                                  {isBreakeven && <span className="text-blue-400 print:hidden" title="Punto de equilibrio">🎯</span>}
+                                  {isHighestInterest && <span className="text-red-400 print:hidden" title="Mayor interes">🔺</span>}
+                                  {isNextPayment && <span className="text-yellow-400 print:hidden" title="Proximo pago">📅</span>}
                                 </div>
                               </td>
-                              {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-slate-300">Bs. {formatCurrency(row.initialBalance)}</td>}
-                              <td className="px-4 py-3 text-right text-white font-semibold">{row.payment > 0 ? 'Bs. ' + formatCurrency(row.payment) : '-'}</td>
-                              <td className="px-4 py-3 text-right text-red-400">Bs. {formatCurrency(row.interest)}</td>
-                              <td className={'px-4 py-3 text-right ' + (row.capital < 0 ? 'text-red-400' : 'text-green-400')}>Bs. {formatCurrency(row.capital)}</td>
-                              {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-white font-medium">Bs. {formatCurrency(Math.max(0, row.finalBalance))}</td>}
-                              <td className="px-4 py-3 text-center text-slate-400">{formatDate(row.paymentDate)}</td>
+                              {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-slate-300 print:text-black">Bs. {formatCurrency(row.initialBalance)}</td>}
+                              <td className="px-4 py-3 text-right text-white font-semibold print:text-black">{row.payment > 0 ? 'Bs. ' + formatCurrency(row.payment) : '-'}</td>
+                              <td className="px-4 py-3 text-right text-red-400 print:text-red-600">Bs. {formatCurrency(row.interest)}</td>
+                              <td className={'px-4 py-3 text-right print:text-green-600 ' + (row.capital < 0 ? 'text-red-400' : 'text-green-400')}>Bs. {formatCurrency(row.capital)}</td>
+                              {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-white font-medium print:text-black">Bs. {formatCurrency(Math.max(0, row.finalBalance))}</td>}
+                              <td className="px-4 py-3 text-center text-slate-400 print:text-black">{formatDate(row.paymentDate)}</td>
                               {viewMode === 'detailed' && (
                                 <>
-                                  <td className="px-4 py-3 text-center">
+                                  <td className="px-4 py-3 text-center print:hidden">
                                     <div className="flex items-center justify-center gap-2">
                                       <SparklineChart data={interestData} color="#ef4444" />
                                       <SparklineChart data={capitalData} color="#10b981" />
                                     </div>
                                   </td>
-                                  <td className="px-4 py-3">
+                                  <td className="px-4 py-3 print:hidden">
                                     <div className="flex items-center gap-2">
                                       <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
                                         <div className="h-full bg-gradient-to-r from-green-500 to-cyan-400 rounded-full transition-all" style={{ width: progressPercent + '%' }}></div>
@@ -448,7 +701,7 @@ export default function AmortizationTable({ rows, summary }: Props) {
                               )}
                             </tr>
                             {isExpanded && viewMode === 'detailed' && row.number > 0 && (
-                              <tr className="bg-slate-900/50">
+                              <tr className="bg-slate-900/50 print:hidden">
                                 <td colSpan={8} className="px-4 py-4">
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
@@ -484,41 +737,21 @@ export default function AmortizationTable({ rows, summary }: Props) {
                             )}
                           </tbody>
                         </table>
-                        
-                        {/* Tooltip */}
-                        {tooltipRow === row.number && viewMode === 'detailed' && row.number > 0 && (
-                          <div className="absolute left-0 right-0 top-full z-20 bg-slate-900 border border-blue-500/30 rounded-lg p-3 shadow-xl pointer-events-none">
-                            <div className="grid grid-cols-3 gap-3 text-xs">
-                              <div>
-                                <p className="text-slate-400">Calculo Interes</p>
-                                <p className="text-white font-mono">Bs. {formatCurrency(row.initialBalance)} × {(row.interest / row.initialBalance * 100).toFixed(2)}%</p>
-                              </div>
-                              <div>
-                                <p className="text-slate-400">Calculo Capital</p>
-                                <p className="text-white font-mono">Bs. {formatCurrency(row.payment)} - Bs. {formatCurrency(row.interest)}</p>
-                              </div>
-                              <div>
-                                <p className="text-slate-400">Saldo Restante</p>
-                                <p className="text-white font-mono">{((row.finalBalance / rows[0].initialBalance) * 100).toFixed(1)}% del original</p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-slate-900/70 border-t-2 border-blue-500/30">
-                  <td className="px-4 py-3 text-white font-bold">TOTAL</td>
-                  {viewMode !== 'compact' && <td className="px-4 py-3"></td>}
-                  <td className="px-4 py-3 text-right text-white font-bold">Bs. {formatCurrency(totalPayments)}</td>
-                  <td className="px-4 py-3 text-right text-red-400 font-bold">Bs. {formatCurrency(totalInterest)}</td>
-                  <td className="px-4 py-3 text-right text-green-400 font-bold">Bs. {formatCurrency(totalCapital)}</td>
-                  {viewMode !== 'compact' && <td className="px-4 py-3"></td>}
-                  <td className="px-4 py-3"></td>
-                  {viewMode === 'detailed' && <><td className="px-4 py-3"></td><td className="px-4 py-3"></td></>}
+                <tr className="bg-slate-900/70 border-t-2 border-blue-500/30 print:bg-gray-100 print:border-gray-400">
+                  <td className="px-4 py-3 text-white font-bold print:text-black">TOTAL</td>
+                  {viewMode !== 'compact' && <td className="px-4 py-3 print:hidden"></td>}
+                  <td className="px-4 py-3 text-right text-white font-bold print:text-black">Bs. {formatCurrency(totalPayments)}</td>
+                  <td className="px-4 py-3 text-right text-red-400 font-bold print:text-red-600">Bs. {formatCurrency(totalInterest)}</td>
+                  <td className="px-4 py-3 text-right text-green-400 font-bold print:text-green-600">Bs. {formatCurrency(totalCapital)}</td>
+                  {viewMode !== 'compact' && <td className="px-4 py-3 print:hidden"></td>}
+                  <td className="px-4 py-3 print:hidden"></td>
+                  {viewMode === 'detailed' && <><td className="px-4 py-3 print:hidden"></td><td className="px-4 py-3 print:hidden"></td></>}
                 </tr>
               </tfoot>
             </table>
@@ -528,7 +761,7 @@ export default function AmortizationTable({ rows, summary }: Props) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between print:hidden">
           <p className="text-sm text-slate-400">Mostrando {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredRows.length)} de {filteredRows.length} cuotas</p>
           <div className="flex gap-2">
             <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded text-xs text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">Primera</button>
@@ -541,7 +774,7 @@ export default function AmortizationTable({ rows, summary }: Props) {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
         <div className="bg-slate-800/50 rounded-xl border border-blue-500/20 p-4">
           <p className="text-sm text-slate-400">Total Pagado</p>
           <p className="text-xl font-bold text-white">Bs. {formatCurrency(summary.totalPayment)}</p>
@@ -558,6 +791,9 @@ export default function AmortizationTable({ rows, summary }: Props) {
 
       {/* Export Actions */}
       <div className="flex flex-wrap gap-2 print:hidden">
+        <button onClick={handleExportWord} className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-sm text-slate-300 hover:bg-blue-500/20 hover:border-blue-500/50 transition-all">
+          <FileText className="w-4 h-4" /> Exportar Word
+        </button>
         <button onClick={handleExportPDF} className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-sm text-slate-300 hover:bg-red-500/20 hover:border-red-500/50 transition-all">
           <FileText className="w-4 h-4" /> Exportar PDF
         </button>
