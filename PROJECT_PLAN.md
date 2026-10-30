@@ -1,5 +1,5 @@
 # 📋 Documento de Planificación del Proyecto
-# Sistema de Gestión de Préstamos v2.0
+# Sistema de Gestión de Préstamos v3.0
 
 ---
 
@@ -26,107 +26,142 @@
 **Sistema de Gestión de Préstamos** — Calculadora de Amortización con Gestión Integral
 
 ### Descripción
-Sistema web completo para la gestión de préstamos personales/comerciales basado en el método de amortización francesa. Permite calcular cuotas, generar tablas de amortización, registrar pagos, simular pagos anticipados, calcular moras, comparar escenarios de tasas y gestionar el historial completo de préstamos con edición, duplicación y exportación.
+Sistema web completo para la gestión de préstamos personales/comerciales basado en el método de amortización francesa. Incluye calculadora, tablas de amortización, dashboard financiero, gestión de pagos, notificaciones, reportes, importación masiva, PWA, autenticación multi-usuario y más.
 
 ### Estado Actual
-✅ **Versión 2.0 Completada** - 17 commits aplicados, 10 módulos funcionales, todas las funcionalidades core implementadas.
+✅ **Versión 3.0 - 60% Completado**
+- 20 componentes funcionales
+- 30+ commits aplicados
+- 12 de 20 mejoras implementadas
+- 8 mejoras pendientes para mañana
 
-### Contexto
-Desarrollado como respuesta a la necesidad de un sistema que permita:
-- Calcular préstamos con precisión matemática
-- Visualizar gráficamente la evolución de los pagos
-- Gestionar múltiples préstamos simultáneamente con edición completa
-- Tomar decisiones informadas sobre pagos anticipados
-- Controlar morosidad con alertas automáticas
-- Exportar datos para análisis externo
+### Versión
+- **Actual**: v3.0
+- **Anterior**: v2.0
+- **Próxima**: v3.1 (pendiente)
 
 ### Stakeholders
 | Rol | Interés |
 |-----|---------|
-| Usuario final (prestamista) | Gestión eficiente de cartera con edición y exportación |
-| Cliente (prestatario) | Transparencia en pagos y comprobantes |
-| Administrador | Control, reportes y documentación completa |
-| Desarrollador | Mantenibilidad, escalabilidad y código documentado |
+| Usuario final (prestamista) | Gestión eficiente de cartera |
+| Cliente (prestatario) | Transparencia en pagos |
+| Administrador | Control y reportes |
+| Desarrollador | Mantenibilidad y escalabilidad |
 
 ---
 
 ## 2. Objetivos
 
 ### Objetivo General
-Desarrollar un sistema web que permita la gestión integral de préstamos con cálculos precisos de amortización, visualización gráfica, herramientas de análisis financiero y gestión completa del ciclo de vida del préstamo.
+Desarrollar un sistema web completo para la gestión integral de préstamos con cálculos precisos, visualización gráfica, herramientas de análisis financiero y gestión completa del ciclo de vida.
 
 ### Objetivos Específicos
-1. ✅ Implementar calculadora de préstamos con fórmula de amortización francesa
-2. ✅ Generar tablas de amortización dinámicas con exportación CSV
-3. ✅ Visualizar datos financieros mediante gráficos interactivos (pie, área, barras)
-4. ✅ Registrar pagos con generación de comprobantes imprimibles
-5. ✅ Simular impacto de pagos anticipados con diferentes frecuencias
-6. ✅ Calcular automáticamente intereses moratorios configurables
-7. ✅ Comparar hasta 5 escenarios de tasas y plazos simultáneamente
-8. ✅ Persistir datos de préstamos en localStorage
-9. ✅ Editar préstamos existentes con recálculo automático
-10. ✅ Duplicar préstamos para probar variaciones
-11. ✅ Exportar datos de préstamos en formato JSON
-12. ✅ Gestionar estados del préstamo (activo, completado, cancelado)
-13. ✅ Documentar completamente el proyecto con plan visual interactivo
+1. ✅ Calculadora de préstamos con amortización francesa
+2. ✅ Tablas de amortización dinámicas con exportación
+3. ✅ Dashboard visual con gráficos interactivos
+4. ✅ Registro de pagos con comprobantes
+5. ✅ Simulador de pagos anticipados
+6. ✅ Cálculo de intereses moratorios
+7. ✅ Comparador de tasas y plazos
+8. ✅ Persistencia en localStorage
+9. ✅ Edición de préstamos con recálculo
+10. ✅ Duplicación de préstamos
+11. ✅ Exportación JSON
+12. ✅ Gestión de estados (activo/completado/cancelado)
+13. ✅ Documentación completa
+14. ✅ Sistema de redondeo inteligente
+15. ✅ Filtros avanzados en tabla
+16. ✅ Gráfico de evolución integrado
+17. ✅ Exportación a Word
+18. ✅ Impresión optimizada
+19. ✅ Alertas de vencimiento
+20. ✅ Dashboard de métricas financieras
+21. ✅ Modo oscuro/claro
+22. ✅ Búsqueda global con atajos
+23. ✅ Importación masiva Excel
+24. ✅ Generador de contratos PDF
+25. ✅ Sistema de notificaciones
+26. ✅ PWA (Progressive Web App)
+27. ✅ Multi-usuario con roles
+28. ✅ Reportes mensuales
+29. ✅ Renegociación de préstamos
+30. ⏳ Tour interactivo (PENDIENTE)
+31. ⏳ Sistema de garantes (PENDIENTE)
+32. ⏳ Cálculo de penalidades (PENDIENTE)
+33. ⏳ Backend Node.js (PENDIENTE)
+34. ⏳ Tests automatizados (PENDIENTE)
+35. ⏳ Optimización performance (PENDIENTE)
+36. ⏳ Pasarelas de pago (PENDIENTE)
+37. ⏳ White label (PENDIENTE)
 
 ---
 
 ## 3. Alcance del Proyecto
 
-### ✅ INCLUYE (In Scope)
+### ✅ COMPLETADO (v3.0)
 
-#### Fase 1 — Foundation (Completado - Commits 1-3)
-- Setup del proyecto con Vite + React + TypeScript + Tailwind
-- Definición de tipos e interfaces TypeScript
-- Componente principal con navegación por pestañas
-- Lógica de amortización francesa
+#### Fase 1: Foundation (Commits 1-3) ✅
+- Setup Vite + React + TypeScript + Tailwind
+- Tipos e interfaces
+- Componente principal
 
-#### Fase 2 — Módulos Core (Completado - Commits 4-7)
-- Calculadora de préstamos con sliders y presets
-- Dashboard visual con 3 tipos de gráficos
-- Tabla de amortización con exportación CSV e impresión
-- Calendario de pagos con timeline y cálculo de mora
+#### Fase 2: Core Modules (Commits 4-7) ✅
+- Calculadora
+- Dashboard
+- Tabla de amortización
+- Calendario
 
-#### Fase 3 — Gestión (Completado - Commits 8-11)
-- Registro de pagos con comprobantes imprimibles
-- Simulador de pagos anticipados con comparación visual
-- Comparador de tasas con hasta 5 escenarios
-- Historial de préstamos con persistencia
+#### Fase 3: Management (Commits 8-11) ✅
+- Registro de pagos
+- Simulador
+- Comparador
+- Historial
 
-#### Fase 4 — Estilos (Completado - Commit 12)
-- Estilos de impresión optimizados
-- Scrollbar personalizado
-- Animaciones y transiciones
+#### Fase 4: Styles (Commit 12) ✅
+- Estilos de impresión
 
-#### Fase 5 — Documentación (Completado - Commits 13-14)
-- Documento de planificación completo (PROJECT_PLAN.md)
-- Componente ProjectPlan con visualización interactiva
-- Timeline de commits visual
+#### Fase 5: Documentation (Commits 13-14) ✅
+- PROJECT_PLAN.md
+- ProjectPlan.tsx
 
-#### Fase 6 — Mejoras Avanzadas (Completado - Commits 15-17)
-- Extensión de tipos para estados y notas
-- Handlers para actualización, duplicación y exportación
-- Módulo de historial mejorado con:
-  - Búsqueda por nombre/cliente
-  - Filtros por estado
-  - Edición completa con recálculo automático
-  - Duplicación de préstamos
-  - Exportación JSON
-  - Cambio de estado (activo/completado/cancelado)
-  - Notas y observaciones
-  - Barra de progreso visual
-  - Vista de detalles completa
-  - Confirmación de eliminación
+#### Fase 6: Advanced Features (Commits 15-17) ✅
+- Edición de préstamos
+- Duplicación
+- Exportación
 
-### ❌ NO INCLUYE (Out of Scope)
-- Backend/servidor (actualmente client-side only)
-- Base de datos remota
-- Autenticación de usuarios
-- Multi-tenant
-- Integración con pasarelas de pago
-- App móvil nativa
-- Reportes PDF (solo impresión HTML)
+#### Fase 7: Table Enhancements (Commits 18-23) ✅
+- Filtros avanzados
+- Gráfico de evolución
+- Sparkline charts
+- Tooltips
+- Agrupación temporal
+- Exportación Word
+- Impresión optimizada
+- Alertas de vencimiento
+- Sistema de redondeo
+
+#### Fase 8: New Features (Commits 24-30) ✅
+- Dashboard financiero
+- Modo oscuro/claro
+- Búsqueda global
+- Importación Excel
+- Generador de contratos
+- Notificaciones
+- PWA
+- Multi-usuario
+- Reportes mensuales
+- Renegociación
+
+### ⏳ PENDIENTE (v3.1 - Para Mañana)
+
+1. **Tour Interactivo** - Guía paso a paso para nuevos usuarios
+2. **Sistema de Garantes** - Gestión de garantes en préstamos
+3. **Cálculo de Penalidades** - Interés por pago tardío configurable
+4. **Backend Node.js** - API REST + PostgreSQL
+5. **Tests Automatizados** - Jest + React Testing Library
+6. **Optimización Performance** - Code splitting, lazy loading
+7. **Pasarelas de Pago** - Stripe, PayPal
+8. **White Label** - Personalización de marca
 
 ---
 
@@ -136,7 +171,7 @@ Desarrollar un sistema web que permita la gestión integral de préstamos con c�
 
 ```
 ┌─────────────────────────────────────────────┐
-│              FRONTEND (SPA)                  │
+│              FRONTEND (SPA + PWA)            │
 ├─────────────────────────────────────────────┤
 │  Framework:    React 18 + TypeScript        │
 │  Build Tool:   Vite 6                       │
@@ -144,7 +179,10 @@ Desarrollar un sistema web que permita la gestión integral de préstamos con c�
 │  Charts:       Recharts                     │
 │  Icons:        Lucide React                 │
 │  Storage:      LocalStorage API             │
-│  Docs:         Markdown + Componentes React │
+│  PWA:          Service Worker + Manifest    │
+│  Export:       jsPDF, xlsx, docx            │
+│  Auth:         Context API (simulado)       │
+│  Hotkeys:      react-hotkeys-hook           │
 └─────────────────────────────────────────────┘
 ```
 
@@ -152,265 +190,166 @@ Desarrollar un sistema web que permita la gestión integral de préstamos con c�
 
 ```
 /
-├── index.html                       # HTML base
-├── PROJECT_PLAN.md                  # Plan completo del proyecto
-├── COMMITS.md                       # Guía de commits
-├── apply-commits.sh                 # Script de commits automatizado
-├── src/
-│   ├── App.tsx                      # Componente raíz + lógica central
-│   ├── main.tsx                     # Entry point
-│   ├── types.ts                     # Interfaces TypeScript
-│   ├── index.css                    # Estilos globales + print
-│   └── components/
-│       ├── LoanCalculator.tsx       # 🧮 Calculadora principal
-│       ├── Dashboard.tsx            # 📊 Panel visual con gráficos
-│       ├── AmortizationTable.tsx    # 📋 Tabla de amortización
-│       ├── PaymentCalendar.tsx      # 📅 Calendario con mora
-│       ├── PaymentRegister.tsx      # 💳 Registro de pagos
-│       ├── EarlyPaymentSimulator.tsx # ⚡ Simulador anticipos
-│       ├── RateComparator.tsx       # ⚖️ Comparador de tasas
-│       ├── LoanHistory.tsx          # 📂 Historial mejorado
-│       ├── CommitTimeline.tsx       # 🔀 Timeline de commits
-│       └── ProjectPlan.tsx          # 📋 Plan visual del proyecto
-```
-
-### Fórmulas Matemáticas
-
-**Amortización Francesa:**
-```
-Cuota = P × [r(1+r)^n] / [(1+r)^n - 1]
-
-Donde:
-P = Principal (monto del préstamo)
-r = Tasa de interés periódica
-n = Número de períodos
-```
-
-**Mora:**
-```
-Mora = Cuota × (Tasa_mora / 30) × Días_atraso
-```
-
-**Tasa Efectiva Anual:**
-```
-TEA = (1 + r_mensual)^12 - 1
-```
-
-**Ahorro por Pago Anticipado:**
-```
-Ahorro = Interés_original - Interés_con_extra
-Meses_reducidos = Plazo_original - Plazo_simulado
+├── index.html
+├── PROJECT_PLAN.md
+├── COMMITS.md
+├── README.md
+├── apply-commits.sh
+├── public/
+│   ├── manifest.json
+│   ├── sw.js
+│   ├── icon-192.svg
+│   └── icon-512.svg
+└── src/
+    ├── App.tsx
+    ├── main.tsx
+    ├── types.ts
+    ├── index.css
+    ├── contexts/
+    │   ├── ThemeContext.tsx
+    │   └── AuthContext.tsx
+    └── components/
+        ├── LoanCalculator.tsx
+        ├── Dashboard.tsx
+        ├── AmortizationTable.tsx
+        ├── PaymentCalendar.tsx
+        ├── PaymentRegister.tsx
+        ├── EarlyPaymentSimulator.tsx
+        ├── RateComparator.tsx
+        ├── LoanHistory.tsx
+        ├── CommitTimeline.tsx
+        ├── ProjectPlan.tsx
+        ├── FinancialDashboard.tsx
+        ├── ExcelImport.tsx
+        ├── GlobalSearch.tsx
+        ├── ContractGenerator.tsx
+        ├── NotificationSystem.tsx
+        ├── Login.tsx
+        ├── MonthlyReport.tsx
+        └── LoanRenegotiation.tsx
 ```
 
 ---
 
 ## 5. Módulos del Sistema
 
-### M1: Calculadora de Préstamos
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Calcular cuota mensual y generar tabla |
-| **Inputs** | Monto, tasa mensual, plazo, fecha inicio |
-| **Outputs** | Cuota fija, total a pagar, interés total |
-| **Extras** | Sliders interactivos, presets rápidos, modal de guardado, resultados en tiempo real |
+### Módulos Completados (20)
 
-### M2: Dashboard Visual
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Visualización gráfica de datos |
-| **Gráficos** | Pie (composición capital/interés), Area (evolución del saldo), Bar (capital/interés por cuota) |
-| **KPIs** | Cuota mensual, total capital, interés total, plazo, tasa efectiva anual, relación interés/capital |
+1. **LoanCalculator** - Calculadora con redondeo
+2. **Dashboard** - Panel visual con gráficos
+3. **AmortizationTable** - Tabla con filtros, sparklines, tooltips
+4. **PaymentCalendar** - Calendario con mora
+5. **PaymentRegister** - Registro con comprobantes
+6. **EarlyPaymentSimulator** - Simulador de anticipos
+7. **RateComparator** - Comparador de tasas
+8. **LoanHistory** - Historial con edición/duplicación
+9. **CommitTimeline** - Timeline de commits
+10. **ProjectPlan** - Plan visual
+11. **FinancialDashboard** - Métricas financieras
+12. **ExcelImport** - Importación masiva
+13. **GlobalSearch** - Búsqueda global (Ctrl+K)
+14. **ContractGenerator** - Generador de contratos PDF
+15. **NotificationSystem** - Sistema de notificaciones
+16. **Login** - Autenticación con roles
+17. **MonthlyReport** - Reportes mensuales
+18. **LoanRenegotiation** - Renegociación
+19. **ThemeContext** - Modo oscuro/claro
+20. **AuthContext** - Gestión de roles
 
-### M3: Tabla de Amortización
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Detalle de cada cuota |
-| **Columnas** | No., Saldo Ini., Cuota, Interés, Capital, Saldo Fin., Fecha |
-| **Acciones** | Exportar CSV, imprimir, totales al pie |
+### Módulos Pendientes (8)
 
-### M4: Calendario de Pagos
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Vista temporal de pagos |
-| **Estados** | Pagado, próximo, pendiente, vencido |
-| **Mora** | Cálculo automático con tasa configurable, días de atraso, mora acumulada |
-| **Visual** | Timeline vertical con barras de progreso capital/interés |
-
-### M5: Registro de Pagos
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Registrar pagos realizados |
-| **Funciones** | Pago normal, pago extra (abono a capital), comprobantes imprimibles |
-| **Persistencia** | Vinculado al préstamo guardado |
-| **UI** | Barra de progreso del préstamo, historial de pagos, notas |
-
-### M6: Simulador de Pagos Anticipados
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Evaluar impacto de pagos extra |
-| **Variables** | Monto extra, frecuencia (cada mes/alterno/una vez), mes de inicio |
-| **Outputs** | Ahorro en intereses, meses reducidos, gráfico comparativo de evolución |
-| **Métricas** | Interés ahorrado, nuevo plazo, total extra pagado, ROI del pago anticipado |
-
-### M7: Comparador de Tasas
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Comparar escenarios |
-| **Capacidad** | Hasta 5 escenarios simultáneos |
-| **Outputs** | Mejor opción identificada automáticamente, tabla comparativa, gráficos de cuotas e intereses |
-| **Métricas** | Tasa efectiva anual, cuota mensual, total a pagar, interés total |
-
-### M8: Historial de Préstamos (MEJORADO)
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Gestión completa del ciclo de vida |
-| **Storage** | localStorage del navegador |
-| **Funciones** | Guardar, cargar, editar, duplicar, exportar JSON, eliminar |
-| **Búsqueda** | Por nombre o cliente en tiempo real |
-| **Filtros** | Por estado (todos/activos/completados/cancelados) |
-| **Edición** | Nombre, cliente, parámetros financieros (recalcula automáticamente), notas, estado |
-| **Estados** | Activo (🟢), Completado (🔵), Cancelado (🔴) |
-| **Visual** | Barra de progreso, badges de estado, notas, fechas de creación/edición |
-| **Seguridad** | Confirmación antes de eliminar |
-
-### M9: Timeline de Commits
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Visualizar y gestionar el historial de commits |
-| **Funciones** | Timeline visual, copiar comandos, marcar como aplicados, descargar script |
-| **Stats** | Total commits, features, archivos, aplicados, pendientes |
-| **UI** | Tarjetas expandibles con archivos modificados y comandos Git |
-
-### M10: Plan del Proyecto
-| Aspecto | Detalle |
-|---------|---------|
-| **Propósito** | Visualización interactiva del plan |
-| **Secciones** | Resumen, Objetivos, Módulos, Fases, Técnico, Riesgos |
-| **Features** | Barras de progreso, checklists, módulos expandibles, matriz de riesgos, roadmap |
-| **Export** | Descargar PROJECT_PLAN.md |
+1. **InteractiveTour** - Tour interactivo (React Joyride)
+2. **GuarantorSystem** - Sistema de garantes
+3. **PenaltyCalculator** - Cálculo de penalidades
+4. **Backend API** - Node.js + Express + PostgreSQL
+5. **TestSuite** - Tests unitarios y E2E
+6. **PerformanceOptimizer** - Code splitting, lazy loading
+7. **PaymentGateway** - Integración Stripe/PayPal
+8. **WhiteLabel** - Personalización de marca
 
 ---
 
 ## 6. Cronograma de Desarrollo
 
-### Commits Planificados (17 total)
+### Commits Completados (30)
 
-| # | Commit | Tipo | Fase | Estado | Descripción |
-|---|--------|------|------|--------|-------------|
-| 1 | `chore: setup inicial` | Configuración | 1 | ✅ | Vite + React + Tailwind |
-| 2 | `feat(types): interfaces` | Core | 1 | ✅ | Tipos TypeScript |
-| 3 | `feat(app): componente principal` | Core | 1 | ✅ | Layout + lógica amortización |
-| 4 | `feat(calculator): calculadora` | Feature | 2 | ✅ | Formulario + sliders + presets |
-| 5 | `feat(dashboard): panel visual` | Feature | 2 | ✅ | Gráficos + KPIs |
-| 6 | `feat(table): tabla amortización` | Feature | 2 | ✅ | Tabla + CSV + print |
-| 7 | `feat(calendar): calendario` | Feature | 2 | ✅ | Timeline + mora |
-| 8 | `feat(payments): registro pagos` | Feature | 3 | ✅ | Comprobantes + extras |
-| 9 | `feat(simulator): pagos anticipados` | Feature | 3 | ✅ | Simulación + comparación |
-| 10 | `feat(comparator): comparador` | Feature | 3 | ✅ | Multi-escenario |
-| 11 | `feat(history): historial` | Feature | 3 | ✅ | localStorage |
-| 12 | `style: estilos impresión` | UI | 4 | ✅ | CSS print + scrollbar |
-| 13 | `chore(docs): PROJECT_PLAN.md` | Docs | 5 | ✅ | Plan completo |
-| 14 | `feat(plan): ProjectPlan` | Feature | 5 | ✅ | Visualización interactiva |
-| 15 | `feat(types): mejoras tipos` | Feature | 6 | ✅ | status, updatedAt, notes |
-| 16 | `feat(app): handlers` | Feature | 6 | ✅ | update, duplicate, export |
-| 17 | `feat(history): historial mejorado` | Feature | 6 | ✅ | Edición, duplicar, exportar |
+| # | Tipo | Scope | Descripción | Estado |
+|---|------|-------|-------------|--------|
+| 1 | chore | setup | Setup inicial | ✅ |
+| 2 | feat | types | Interfaces TypeScript | ✅ |
+| 3 | feat | app | Componente principal | ✅ |
+| 4 | feat | calculator | Calculadora | ✅ |
+| 5 | feat | dashboard | Dashboard visual | ✅ |
+| 6 | feat | table | Tabla amortización | ✅ |
+| 7 | feat | calendar | Calendario | ✅ |
+| 8 | feat | payments | Registro pagos | ✅ |
+| 9 | feat | simulator | Simulador anticipos | ✅ |
+| 10 | feat | comparator | Comparador tasas | ✅ |
+| 11 | feat | history | Historial | ✅ |
+| 12 | style | css | Estilos impresión | ✅ |
+| 13 | chore | docs | PROJECT_PLAN.md | ✅ |
+| 14 | feat | plan | ProjectPlan.tsx | ✅ |
+| 15 | feat | types | Mejoras tipos | ✅ |
+| 16 | feat | app | Handlers CRUD | ✅ |
+| 17 | feat | history | Historial mejorado | ✅ |
+| 18 | feat | table | Filtros avanzados | ✅ |
+| 19 | feat | table | Gráfico evolución | ✅ |
+| 20 | feat | table | Sparkline charts | ✅ |
+| 21 | feat | table | Tooltips | ✅ |
+| 22 | feat | table | Agrupación temporal | ✅ |
+| 23 | feat | table | Exportación Word | ✅ |
+| 24 | feat | table | Impresión optimizada | ✅ |
+| 25 | feat | table | Alertas vencimiento | ✅ |
+| 26 | feat | table | Sistema redondeo | ✅ |
+| 27 | feat | financial | Dashboard financiero | ✅ |
+| 28 | feat | theme | Modo oscuro/claro | ✅ |
+| 29 | feat | search | Búsqueda global | ✅ |
+| 30 | feat | import | Importación Excel | ✅ |
+| 31 | feat | contract | Generador contratos | ✅ |
+| 32 | feat | notification | Notificaciones | ✅ |
+| 33 | feat | pwa | PWA support | ✅ |
+| 34 | feat | auth | Multi-usuario | ✅ |
+| 35 | feat | reports | Reportes mensuales | ✅ |
+| 36 | feat | renegotiation | Renegociación | ✅ |
 
-### Fases del Proyecto
+### Commits Pendientes (8)
 
-```
-FASE 1: Foundation (Semanas 1-2) ✅ COMPLETADO
-├── Setup del proyecto
-├── Definición de tipos
-├── Calculadora base
-└── Tabla de amortización
-
-FASE 2: Visualización (Semanas 3-4) ✅ COMPLETADO
-├── Dashboard con gráficos
-├── Calendario de pagos
-└── Estilos de impresión
-
-FASE 3: Gestión (Semanas 5-6) ✅ COMPLETADO
-├── Registro de pagos
-├── Simulador anticipos
-├── Comparador de tasas
-└── Historial persistente
-
-FASE 4: Documentación (Semana 7) ✅ COMPLETADO
-├── Plan del proyecto (PROJECT_PLAN.md)
-├── Timeline de commits
-└── Componente ProjectPlan
-
-FASE 5: Mejoras Avanzadas (Semana 8) ✅ COMPLETADO
-├── Extensión de tipos
-├── Handlers de gestión
-└── Historial mejorado (editar, duplicar, exportar)
-```
+| # | Tipo | Scope | Descripción | Prioridad |
+|---|------|-------|-------------|-----------|
+| 37 | feat | tour | Tour interactivo | Alta |
+| 38 | feat | guarantor | Sistema garantes | Alta |
+| 39 | feat | penalty | Cálculo penalidades | Alta |
+| 40 | feat | backend | Backend API | Media |
+| 41 | test | tests | Tests automatizados | Media |
+| 42 | perf | optimize | Optimización | Media |
+| 43 | feat | payment | Pasarelas pago | Baja |
+| 44 | feat | whitelabel | White label | Baja |
 
 ---
 
 ## 7. Requisitos Técnicos
 
-### Requisitos Funcionales
-| ID | Requisito | Prioridad | Estado |
-|----|-----------|-----------|--------|
-| RF-01 | Calcular cuota con amortización francesa | Alta | ✅ |
-| RF-02 | Generar tabla de amortización | Alta | ✅ |
-| RF-03 | Visualizar gráficos interactivos | Media | ✅ |
-| RF-04 | Exportar tabla a CSV | Media | ✅ |
-| RF-05 | Imprimir tabla/recibos | Media | ✅ |
-| RF-06 | Registrar pagos | Alta | ✅ |
-| RF-07 | Calcular mora automática | Alta | ✅ |
-| RF-08 | Simular pagos anticipados | Media | ✅ |
-| RF-09 | Comparar escenarios | Media | ✅ |
-| RF-10 | Guardar préstamos | Alta | ✅ |
-| RF-11 | Editar préstamos existentes | Alta | ✅ |
-| RF-12 | Duplicar préstamos | Media | ✅ |
-| RF-13 | Exportar préstamos a JSON | Media | ✅ |
-| RF-14 | Gestionar estados del préstamo | Media | ✅ |
-| RF-15 | Buscar y filtrar préstamos | Media | ✅ |
+### Requisitos Funcionales (37 total)
+- ✅ 29 completados
+- ⏳ 8 pendientes
 
-### Requisitos No Funcionales
-| ID | Requisito | Métrica | Estado |
-|----|-----------|---------|--------|
-| RNF-01 | Rendimiento | < 2s carga inicial | ✅ |
-| RNF-02 | Responsive | Mobile + Desktop | ✅ |
-| RNF-03 | Usabilidad | < 3 clicks para calcular | ✅ |
-| RNF-04 | Precisión | 2 decimales exactos | ✅ |
-| RNF-05 | Persistencia | localStorage | ✅ |
-| RNF-06 | Accesibilidad | Contraste WCAG AA | ✅ |
-| RNF-07 | Documentación | 100% documentado | ✅ |
-| RNF-08 | Mantenibilidad | TypeScript + componentes modulares | ✅ |
+### Requisitos No Funcionales (10 total)
+- ✅ 8 completados
+- ⏳ 2 pendientes (performance, tests)
 
 ---
 
 ## 8. Metodología
 
 ### Enfoque
-**Desarrollo Iterativo e Incremental** con entregas por funcionalidad organizadas en 5 fases.
+Desarrollo Iterativo e Incremental con entregas por funcionalidad.
 
-### Convenciones de Código
-- **Commits**: Conventional Commits (`feat:`, `fix:`, `chore:`, `style:`, etc.)
-- **Componentes**: Un archivo por componente, PascalCase
-- **Tipos**: Centralizados en `types.ts`
+### Convenciones
+- **Commits**: Conventional Commits
+- **Componentes**: PascalCase, un archivo por componente
+- **Tipos**: Centralizados en types.ts
 - **Estilos**: Tailwind utility-first
-- **Estado**: React hooks (useState, useEffect)
-- **Documentación**: Markdown + componentes visuales
-
-### Control de Versiones
-```
-main ← releases estables
-  └── feature/* ← nuevas funcionalidades
-  └── fix/* ← correcciones
-```
-
-### Criterios de Aceptación
-Cada módulo debe cumplir:
-1. ✅ Funcionalidad completa según especificación
-2. ✅ Responsive en mobile y desktop
-3. ✅ Manejo de estados vacíos/error
-4. ✅ Código tipado con TypeScript
-5. ✅ Sin errores de compilación
-6. ✅ Documentación actualizada
+- **Estado**: React hooks + Context API
 
 ---
 
@@ -418,120 +357,93 @@ Cada módulo debe cumplir:
 
 | Riesgo | Probabilidad | Impacto | Mitigación | Estado |
 |--------|-------------|---------|------------|--------|
-| Pérdida de datos (localStorage) | Media | Alto | Implementar export JSON | ✅ Mitigado |
-| Errores de cálculo | Baja | Crítico | Validación con casos de prueba | ✅ Mitigado |
-| Incompatibilidad navegador | Baja | Medio | Testing cross-browser | ⏳ Pendiente |
-| Cambios en requisitos | Media | Medio | Arquitectura modular | ✅ Mitigado |
-| Limitación localStorage (5MB) | Baja | Bajo | Paginación de historial | ✅ Mitigado |
-| Complejidad de edición | Media | Medio | Recálculo automático | ✅ Mitigado |
+| Pérdida datos localStorage | Media | Alto | Export JSON | ✅ Mitigado |
+| Errores cálculo | Baja | Crítico | Validación | ✅ Mitigado |
+| Incompatibilidad navegador | Baja | Medio | Testing | ⏳ Pendiente |
+| Cambios requisitos | Media | Medio | Arquitectura modular | ✅ Mitigado |
+| Limitación localStorage | Baja | Bajo | Paginación | ✅ Mitigado |
+| Complejidad edición | Media | Medio | Recálculo automático | ✅ Mitigado |
+| Performance con muchos datos | Media | Alto | Code splitting | ⏳ Pendiente |
 
 ---
 
 ## 10. Criterios de Éxito
 
 ### Métricas Cuantitativas
-- [x] 17 commits específicos aplicados
-- [x] 10 módulos funcionales
+- [x] 30+ commits aplicados
+- [x] 20 módulos funcionales
 - [x] 0 errores de compilación
 - [x] 100% responsive
 - [x] < 2 segundos de carga
-- [x] 15 requisitos funcionales cumplidos
-- [x] 8 requisitos no funcionales cumplidos
+- [ ] Tests automatizados (pendiente)
+- [ ] Code coverage > 80% (pendiente)
 
 ### Métricas Cualitativas
-- [x] Interfaz intuitiva y profesional
-- [x] Cálculos precisos y verificables
-- [x] Visualización clara con gráficos interactivos
-- [x] Documentación completa (3 documentos)
-- [x] Código mantenible y tipado
-- [x] Gestión completa del ciclo de vida del préstamo
-- [x] Herramientas de análisis financiero
-- [x] Exportación de datos para análisis externo
+- [x] Interfaz intuitiva
+- [x] Cálculos precisos
+- [x] Visualización clara
+- [x] Documentación completa
+- [x] Código mantenible
+- [x] PWA instalable
+- [x] Multi-usuario
 
 ---
 
 ## 11. Entregables
 
-| # | Entregable | Formato | Estado | Descripción |
-|---|-----------|---------|--------|-------------|
-| 1 | Aplicación web funcional | React SPA | ✅ | 10 módulos integrados |
-| 2 | Código fuente | TypeScript | ✅ | 13 archivos de componentes |
-| 3 | Documento de planificación | Markdown | ✅ | PROJECT_PLAN.md (este documento) |
-| 4 | Guía de commits | Markdown | ✅ | COMMITS.md con 17 commits |
-| 5 | Script de commits | Shell | ✅ | apply-commits.sh automatizado |
-| 6 | Timeline visual de commits | Componente React | ✅ | CommitTimeline.tsx |
-| 7 | Plan visual del proyecto | Componente React | ✅ | ProjectPlan.tsx |
-| 8 | README del proyecto | Markdown | ✅ | README.md |
+| # | Entregable | Formato | Estado |
+|---|-----------|---------|--------|
+| 1 | Aplicación web | React SPA + PWA | ✅ |
+| 2 | Código fuente | TypeScript | ✅ |
+| 3 | PROJECT_PLAN.md | Markdown | ✅ |
+| 4 | COMMITS.md | Markdown | ✅ |
+| 5 | README.md | Markdown | ✅ |
+| 6 | apply-commits.sh | Shell | ✅ |
+| 7 | Timeline visual | React | ✅ |
+| 8 | Plan visual | React | ✅ |
+| 9 | PWA manifest | JSON | ✅ |
+| 10 | Service Worker | JavaScript | ✅ |
 
 ---
 
 ## 12. Próximas Fases
 
-### Fase 6: Backend (Futuro)
-- [ ] API REST con Node.js/Express
-- [ ] Base de datos PostgreSQL
-- [ ] Autenticación JWT
-- [ ] Endpoints para CRUD de préstamos
-- [ ] Migración de localStorage a base de datos
+### v3.1 - Para Mañana (Prioridad Alta)
+1. ⏳ Tour interactivo
+2. ⏳ Sistema de garantes
+3. ⏳ Cálculo de penalidades
 
-### Fase 7: Funcionalidades Avanzadas
-- [ ] Gestión de clientes (CRUD completo)
-- [ ] Reportes PDF profesionales (jsPDF)
-- [ ] Notificaciones por email/SMS
-- [ ] Dashboard administrativo con métricas globales
-- [ ] Integración con pasarelas de pago
-- [ ] App móvil (React Native)
-- [ ] Importación masiva de préstamos (CSV/Excel)
+### v3.2 - Posterior (Prioridad Media)
+4. ⏳ Backend Node.js + PostgreSQL
+5. ⏳ Tests automatizados
+6. ⏳ Optimización performance
 
-### Fase 8: Optimización y Calidad
-- [ ] Code splitting / lazy loading
-- [ ] PWA (Progressive Web App)
-- [ ] Tests unitarios (Jest + React Testing Library)
-- [ ] Tests E2E (Playwright/Cypress)
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Análisis de cobertura de código
-- [ ] Optimización de performance (Lighthouse)
-
-### Fase 9: Características Enterprise
-- [ ] Multi-usuario con roles y permisos
-- [ ] Auditoría de cambios (log de actividades)
-- [ ] Backup automático
-- [ ] Integración con sistemas contables
-- [ ] API pública para terceros
-- [ ] White-label para instituciones financieras
+### v3.3 - Futuro (Prioridad Baja)
+7. ⏳ Pasarelas de pago
+8. ⏳ White label
 
 ---
 
-## 📝 Notas Técnicas
-
-- **Moneda**: Bolivianos (Bs.) - configurable para otras monedas
-- **Método de amortización**: Francés (cuota fija)
-- **Almacenamiento**: localStorage (client-side) con opción de exportar JSON
-- **Licencia**: Uso interno / educativo
-- **Versión actual**: 2.0 (completada)
-- **Próxima versión**: 3.0 (backend + features avanzadas)
-
----
-
-## 📊 Resumen Ejecutivo del Estado
+## 📊 Resumen del Estado
 
 ```
 ┌─────────────────────────────────────────────┐
-│  SISTEMA DE PRÉSTAMOS v2.0                  │
+│  SISTEMA DE PRÉSTAMOS v3.0                  │
 ├─────────────────────────────────────────────┤
-│  ✅ 10/10 Módulos completados               │
-│  ✅ 17/17 Commits aplicados                 │
-│  ✅ 15/15 Requisitos funcionales            │
-│  ✅ 8/8 Requisitos no funcionales           │
-│  ✅ 5/5 Fases completadas                   │
-│  ✅ 100% Documentado                        │
-│  🎯 Estado: PRODUCCIÓN                      │
+│  ✅ 20/20 Módulos completados               │
+│  ✅ 36/36 Commits aplicados                 │
+│  ✅ 29/37 Requisitos funcionales            │
+│  ✅ 8/10 Requisitos no funcionales          │
+│  ✅ 8/8 Fases completadas                   │
+│  ⏳ 8/8 Mejoras pendientes                  │
+│  📊 Avance: 60%                             │
+│  🎯 Estado: EN DESARROLLO                   │
 └─────────────────────────────────────────────┘
 ```
 
 ---
 
-*Documento generado: Enero 2026*  
-*Versión del proyecto: 2.0*  
-*Estado: ✅ Completado - Listo para producción*  
-*Próxima actualización: Versión 3.0 (Backend)*
+*Última actualización: Enero 2026*  
+*Versión: 3.0*  
+*Estado: En desarrollo - 60% completado*  
+*Próxima sesión: Implementar 8 mejoras pendientes*

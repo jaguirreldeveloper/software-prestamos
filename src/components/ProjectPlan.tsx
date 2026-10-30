@@ -82,13 +82,36 @@ const phases: Phase[] = [
   },
   {
     id: '6',
-    name: 'Backend (Futuro)',
-    weeks: 'Semanas 9-14',
-    status: 'pending',
+    name: 'Mejoras en Tabla',
+    weeks: 'Semana 9',
+    status: 'completed',
     tasks: [
-      { name: 'API REST', status: 'todo' },
-      { name: 'Base de datos', status: 'todo' },
-      { name: 'Autenticación', status: 'todo' },
+      { name: 'Filtros avanzados', status: 'done' },
+      { name: 'Gráficos y sparklines', status: 'done' },
+      { name: 'Sistema de redondeo', status: 'done' },
+    ],
+  },
+  {
+    id: '7',
+    name: 'Nuevas Funcionalidades',
+    weeks: 'Semana 10',
+    status: 'completed',
+    tasks: [
+      { name: 'Dashboard financiero', status: 'done' },
+      { name: 'PWA y modo oscuro', status: 'done' },
+      { name: 'Auth y notificaciones', status: 'done' },
+    ],
+  },
+  {
+    id: '8',
+    name: 'Pendiente (Mañana)',
+    weeks: 'Semana 11',
+    status: 'in-progress',
+    tasks: [
+      { name: 'Tour interactivo', status: 'todo' },
+      { name: 'Sistema de garantes', status: 'todo' },
+      { name: 'Cálculo de penalidades', status: 'todo' },
+      { name: 'Backend + Tests', status: 'todo' },
     ],
   },
 ];

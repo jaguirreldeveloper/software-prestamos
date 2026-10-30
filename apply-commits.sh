@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # ============================================
-# 🚀 Script de Commits - Sistema de Préstamos
+# 🚀 Script de Commits - Sistema de Préstamos v3.0
 # ============================================
-# 17 commits específicos organizados por funcionalidad
+# 36 commits específicos organizados en 8 fases
 # Ejecutar: chmod +x apply-commits.sh && ./apply-commits.sh
 
 set -e  # Detener si hay error
 
-echo "🚀 Iniciando commits del Sistema de Préstamos..."
+echo "🚀 Iniciando commits del Sistema de Préstamos v3.0..."
 echo "================================================"
-echo "📋 Total de commits: 17"
+echo "📋 Total de commits: 36"
 echo ""
 
 # Verificar que estamos en un repositorio git
@@ -27,7 +27,7 @@ commit_step() {
     local files=$3
     
     echo ""
-    echo "📌 Commit $step_num/17: $message"
+    echo "📌 Commit $step_num/36: $message"
     echo "   Archivos: $files"
     
     read -p "   ¿Ejecutar este commit? (s/n): " confirm
@@ -47,7 +47,7 @@ auto_commit() {
     local files=$3
     
     echo ""
-    echo "📌 Commit $step_num/17: $message"
+    echo "📌 Commit $step_num/36: $message"
     echo "   Archivos: $files"
     
     git add $files
@@ -73,73 +73,57 @@ elif [ "$mode" = "3" ]; then
     echo "📋 Comandos a ejecutar:"
     echo "========================"
     echo ""
-    echo "# Commit 1: Setup inicial"
-    echo "git add index.html src/index.css src/main.tsx"
-    echo "git commit -m \"chore: setup inicial del proyecto con Vite + React + Tailwind\""
+    echo "# FASE 1: FUNDACIÓN"
+    echo "git add index.html src/index.css src/main.tsx && git commit -m \"chore: setup inicial del proyecto con Vite + React + Tailwind\""
+    echo "git add src/types.ts && git commit -m \"feat(types): definir interfaces para préstamos, amortización y pagos\""
+    echo "git add src/App.tsx && git commit -m \"feat(app): crear componente principal con navegación por pestañas y lógica de amortización\""
     echo ""
-    echo "# Commit 2: Tipos e interfaces"
-    echo "git add src/types.ts"
-    echo "git commit -m \"feat(types): definir interfaces para préstamos, amortización y pagos\""
+    echo "# FASE 2: MÓDULOS CORE"
+    echo "git add src/components/LoanCalculator.tsx && git commit -m \"feat(calculator): agregar calculadora con sliders, presets y modal de guardado\""
+    echo "git add src/components/Dashboard.tsx && git commit -m \"feat(dashboard): agregar panel visual con gráficos de composición, evolución y métricas\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar tabla de amortización con exportación CSV e impresión\""
+    echo "git add src/components/PaymentCalendar.tsx && git commit -m \"feat(calendar): agregar calendario con timeline, estados y cálculo de mora\""
     echo ""
-    echo "# Commit 3: Componente principal"
-    echo "git add src/App.tsx"
-    echo "git commit -m \"feat(app): crear componente principal con navegación por pestañas y lógica de amortización\""
+    echo "# FASE 3: GESTIÓN"
+    echo "git add src/components/PaymentRegister.tsx && git commit -m \"feat(payments): agregar módulo de registro con comprobantes y pagos extras\""
+    echo "git add src/components/EarlyPaymentSimulator.tsx && git commit -m \"feat(simulator): agregar simulador de pagos anticipados con comparación visual\""
+    echo "git add src/components/RateComparator.tsx && git commit -m \"feat(comparator): agregar comparador de tasas con hasta 5 escenarios\""
+    echo "git add src/components/LoanHistory.tsx && git commit -m \"feat(history): agregar historial con persistencia en localStorage\""
     echo ""
-    echo "# Commit 4: Calculadora"
-    echo "git add src/components/LoanCalculator.tsx"
-    echo "git commit -m \"feat(calculator): agregar calculadora con sliders, presets y modal de guardado\""
+    echo "# FASE 4: ESTILOS"
+    echo "git add src/index.css && git commit -m \"style: agregar estilos de impresión, scrollbar personalizado y animaciones\""
     echo ""
-    echo "# Commit 5: Dashboard"
-    echo "git add src/components/Dashboard.tsx"
-    echo "git commit -m \"feat(dashboard): agregar panel visual con gráficos de composición, evolución y métricas\""
+    echo "# FASE 5: DOCUMENTACIÓN"
+    echo "git add PROJECT_PLAN.md && git commit -m \"chore(docs): crear documento de planificación del proyecto PROJECT_PLAN.md\""
+    echo "git add src/components/ProjectPlan.tsx && git commit -m \"feat(plan): agregar componente ProjectPlan con visualización interactiva del proyecto\""
     echo ""
-    echo "# Commit 6: Tabla de amortización"
-    echo "git add src/components/AmortizationTable.tsx"
-    echo "git commit -m \"feat(table): agregar tabla de amortización con exportación CSV e impresión\""
+    echo "# FASE 6: MEJORAS AVANZADAS"
+    echo "git add src/types.ts && git commit -m \"feat(types): agregar campos status, updatedAt y notes a interfaz SavedLoan\""
+    echo "git add src/App.tsx && git commit -m \"feat(app): agregar handlers para update, duplicate y export de préstamos\""
+    echo "git add src/components/LoanHistory.tsx && git commit -m \"feat(history): mejorar módulo de historial con edición, duplicación, exportación y estados\""
     echo ""
-    echo "# Commit 7: Calendario de pagos"
-    echo "git add src/components/PaymentCalendar.tsx"
-    echo "git commit -m \"feat(calendar): agregar calendario con timeline, estados y cálculo de mora\""
+    echo "# FASE 7: MEJORAS EN TABLA"
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar filtros avanzados por rango de fechas y montos\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): integrar gráfico de evolución del préstamo en la tabla\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar sparkline charts inline para tendencias\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar tooltips informativos al pasar el mouse\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar agrupación temporal trimestral y anual\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar exportación a Word (.docx) con formato profesional\""
+    echo "git add src/index.css && git commit -m \"style(print): optimizar estilos CSS para impresión profesional\""
+    echo "git add src/components/AmortizationTable.tsx && git commit -m \"feat(table): agregar alertas de vencimiento con notificaciones visuales\""
+    echo "git add src/components/AmortizationTable.tsx src/App.tsx && git commit -m \"feat(table): implementar sistema de redondeo inteligente al entero superior\""
     echo ""
-    echo "# Commit 8: Registro de pagos"
-    echo "git add src/components/PaymentRegister.tsx"
-    echo "git commit -m \"feat(payments): agregar módulo de registro con comprobantes y pagos extras\""
-    echo ""
-    echo "# Commit 9: Simulador de pagos anticipados"
-    echo "git add src/components/EarlyPaymentSimulator.tsx"
-    echo "git commit -m \"feat(simulator): agregar simulador de pagos anticipados con comparación visual\""
-    echo ""
-    echo "# Commit 10: Comparador de tasas"
-    echo "git add src/components/RateComparator.tsx"
-    echo "git commit -m \"feat(comparator): agregar comparador de tasas con hasta 5 escenarios\""
-    echo ""
-    echo "# Commit 11: Historial de préstamos"
-    echo "git add src/components/LoanHistory.tsx"
-    echo "git commit -m \"feat(history): agregar historial con persistencia en localStorage\""
-    echo ""
-    echo "# Commit 12: Estilos de impresión"
-    echo "git add src/index.css"
-    echo "git commit -m \"style: agregar estilos de impresión, scrollbar personalizado y animaciones\""
-    echo ""
-    echo "# Commit 13: Documento de planificación"
-    echo "git add PROJECT_PLAN.md"
-    echo "git commit -m \"chore(docs): crear documento de planificación del proyecto PROJECT_PLAN.md\""
-    echo ""
-    echo "# Commit 14: Componente ProjectPlan"
-    echo "git add src/components/ProjectPlan.tsx"
-    echo "git commit -m \"feat(plan): agregar componente ProjectPlan con visualización interactiva del proyecto\""
-    echo ""
-    echo "# Commit 15: Mejoras en tipos"
-    echo "git add src/types.ts"
-    echo "git commit -m \"feat(types): agregar campos status, updatedAt y notes a interfaz SavedLoan\""
-    echo ""
-    echo "# Commit 16: Handlers en App"
-    echo "git add src/App.tsx"
-    echo "git commit -m \"feat(app): agregar handlers para update, duplicate y export de préstamos\""
-    echo ""
-    echo "# Commit 17: Mejoras en historial"
-    echo "git add src/components/LoanHistory.tsx"
-    echo "git commit -m \"feat(history): mejorar módulo de historial con edición, duplicación, exportación y estados\""
+    echo "# FASE 8: NUEVAS FUNCIONALIDADES"
+    echo "git add src/components/FinancialDashboard.tsx src/App.tsx && git commit -m \"feat(financial): agregar dashboard de métricas financieras con KPIs y gráficos\""
+    echo "git add src/contexts/ThemeContext.tsx src/App.tsx src/index.css && git commit -m \"feat(theme): implementar modo oscuro/claro con persistencia en localStorage\""
+    echo "git add src/components/GlobalSearch.tsx src/App.tsx && git commit -m \"feat(search): agregar búsqueda global con atajo Ctrl+K\""
+    echo "git add src/components/ExcelImport.tsx src/App.tsx && git commit -m \"feat(import): implementar importación masiva de préstamos desde Excel\""
+    echo "git add src/components/ContractGenerator.tsx && git commit -m \"feat(contract): agregar generador de contratos PDF profesionales\""
+    echo "git add src/components/NotificationSystem.tsx src/App.tsx && git commit -m \"feat(notification): implementar sistema de notificaciones con alertas de vencimiento\""
+    echo "git add public/manifest.json public/sw.js public/icon-192.svg public/icon-512.svg index.html && git commit -m \"feat(pwa): agregar soporte PWA con service worker y manifiesto\""
+    echo "git add src/contexts/AuthContext.tsx src/components/Login.tsx src/App.tsx && git commit -m \"feat(auth): implementar sistema multi-usuario con roles y permisos\""
+    echo "git add src/components/MonthlyReport.tsx src/App.tsx && git commit -m \"feat(reports): agregar reportes mensuales automáticos con exportación PDF\""
+    echo "git add src/components/LoanRenegotiation.tsx src/App.tsx && git commit -m \"feat(renegotiation): implementar renegociación de préstamos con recálculo automático\""
     echo ""
     echo "========================"
     echo "✅ Comandos listos para copiar y ejecutar"
@@ -266,6 +250,98 @@ $COMMIT_FUNC 17 \
     "src/components/LoanHistory.tsx"
 
 # ============================================
+# FASE 7: MEJORAS EN TABLA (Commits 18-26)
+# ============================================
+echo ""
+echo "═══════════════════════════════════════"
+echo "  📊 FASE 7: MEJORAS EN TABLA"
+echo "═══════════════════════════════════════"
+
+$COMMIT_FUNC 18 \
+    "feat(table): agregar filtros avanzados por rango de fechas y montos" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 19 \
+    "feat(table): integrar gráfico de evolución del préstamo en la tabla" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 20 \
+    "feat(table): agregar sparkline charts inline para tendencias" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 21 \
+    "feat(table): agregar tooltips informativos al pasar el mouse" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 22 \
+    "feat(table): agregar agrupación temporal trimestral y anual" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 23 \
+    "feat(table): agregar exportación a Word (.docx) con formato profesional" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 24 \
+    "style(print): optimizar estilos CSS para impresión profesional" \
+    "src/index.css"
+
+$COMMIT_FUNC 25 \
+    "feat(table): agregar alertas de vencimiento con notificaciones visuales" \
+    "src/components/AmortizationTable.tsx"
+
+$COMMIT_FUNC 26 \
+    "feat(table): implementar sistema de redondeo inteligente al entero superior" \
+    "src/components/AmortizationTable.tsx src/App.tsx"
+
+# ============================================
+# FASE 8: NUEVAS FUNCIONALIDADES (Commits 27-36)
+# ============================================
+echo ""
+echo "═══════════════════════════════════════"
+echo "  🚀 FASE 8: NUEVAS FUNCIONALIDADES"
+echo "═══════════════════════════════════════"
+
+$COMMIT_FUNC 27 \
+    "feat(financial): agregar dashboard de métricas financieras con KPIs y gráficos" \
+    "src/components/FinancialDashboard.tsx src/App.tsx"
+
+$COMMIT_FUNC 28 \
+    "feat(theme): implementar modo oscuro/claro con persistencia en localStorage" \
+    "src/contexts/ThemeContext.tsx src/App.tsx src/index.css"
+
+$COMMIT_FUNC 29 \
+    "feat(search): agregar búsqueda global con atajo Ctrl+K" \
+    "src/components/GlobalSearch.tsx src/App.tsx"
+
+$COMMIT_FUNC 30 \
+    "feat(import): implementar importación masiva de préstamos desde Excel" \
+    "src/components/ExcelImport.tsx src/App.tsx"
+
+$COMMIT_FUNC 31 \
+    "feat(contract): agregar generador de contratos PDF profesionales" \
+    "src/components/ContractGenerator.tsx"
+
+$COMMIT_FUNC 32 \
+    "feat(notification): implementar sistema de notificaciones con alertas de vencimiento" \
+    "src/components/NotificationSystem.tsx src/App.tsx"
+
+$COMMIT_FUNC 33 \
+    "feat(pwa): agregar soporte PWA con service worker y manifiesto" \
+    "public/manifest.json public/sw.js public/icon-192.svg public/icon-512.svg index.html"
+
+$COMMIT_FUNC 34 \
+    "feat(auth): implementar sistema multi-usuario con roles y permisos" \
+    "src/contexts/AuthContext.tsx src/components/Login.tsx src/App.tsx"
+
+$COMMIT_FUNC 35 \
+    "feat(reports): agregar reportes mensuales automáticos con exportación PDF" \
+    "src/components/MonthlyReport.tsx src/App.tsx"
+
+$COMMIT_FUNC 36 \
+    "feat(renegotiation): implementar renegociación de préstamos con recálculo automático" \
+    "src/components/LoanRenegotiation.tsx src/App.tsx"
+
+# ============================================
 # RESULTADO FINAL
 # ============================================
 echo ""
@@ -280,11 +356,13 @@ echo "  💳 Fase 3: Gestión (4 commits)"
 echo "  🎨 Fase 4: Estilos (1 commit)"
 echo "  📋 Fase 5: Documentación (2 commits)"
 echo "  💎 Fase 6: Mejoras Avanzadas (3 commits)"
+echo "  📊 Fase 7: Mejoras en Tabla (9 commits)"
+echo "  🚀 Fase 8: Nuevas Funcionalidades (10 commits)"
 echo ""
 echo "📈 Últimos commits:"
-git log --oneline -17
+git log --oneline -36
 echo ""
 echo "🔍 Para ver el historial completo:"
 echo "   git log --oneline --graph"
 echo ""
-echo "🎉 ¡Listo! Sistema de Préstamos v2.0"
+echo "🎉 ¡Listo! Sistema de Préstamos v3.0"
