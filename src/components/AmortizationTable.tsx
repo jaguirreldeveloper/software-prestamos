@@ -27,6 +27,7 @@ export default function AmortizationTable({ rows, summary }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('standard');
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showRounding, setShowRounding] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-BO', {
@@ -193,6 +194,12 @@ export default function AmortizationTable({ rows, summary }: Props) {
               <Filter className="w-4 h-4" />
               Filtros
             </button>
+            <button 
+              onClick={() => setShowRounding(!showRounding)}
+              className={`btn ${showRounding ? 'btn-primary' : 'btn-secondary'}`}
+            >
+              💰 Redondeo
+            </button>
           </div>
         </div>
 
@@ -209,6 +216,13 @@ export default function AmortizationTable({ rows, summary }: Props) {
                 {viewMode !== 'compact' && <th>Saldo Final</th>}
                 <th>Fecha</th>
                 {viewMode === 'detailed' && <th>Progreso</th>}
+                {showRounding && (
+                  <>
+                    <th>Cuota Redondeada</th>
+                    <th>Diferencia</th>
+                    <th>Acumulado</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -264,6 +278,19 @@ export default function AmortizationTable({ rows, summary }: Props) {
                         </div>
                       </td>
                     )}
+                    {showRounding && (
+                      <>
+                        <td className="font-semibold" style={{ color: 'var(--accent-secondary)' }}>
+                          Bs. {formatCurrency(row.roundedPayment || row.payment)}
+                        </td>
+                        <td style={{ color: 'var(--accent-warning)' }}>
+                          {row.roundingDifference ? '+' : ''}{formatCurrency(row.roundingDifference || 0)}
+                        </td>
+                        <td style={{ color: 'var(--accent-info)' }}>
+                          {formatCurrency(row.accumulatedRounding || 0)}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 );
               })}
@@ -284,6 +311,15 @@ export default function AmortizationTable({ rows, summary }: Props) {
                 {viewMode !== 'compact' && <td></td>}
                 <td></td>
                 {viewMode === 'detailed' && <td></td>}
+                {showRounding && (
+                  <>
+                    <td className="font-bold" style={{ color: 'var(--accent-secondary)' }}>
+                      Bs. {formatCurrency(summary.totalRoundedPayment || totalPayments)}
+                    </td>
+                    <td></td>
+                    <td></td>
+                  </>
+                )}
               </tr>
             </tfoot>
           </table>

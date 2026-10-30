@@ -16,6 +16,14 @@ export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDupli
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all');
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [editingLoan, setEditingLoan] = useState<SavedLoan | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editClient, setEditClient] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editAmount, setEditAmount] = useState(0);
+  const [editRate, setEditRate] = useState(0);
+  const [editTerm, setEditTerm] = useState(0);
+  const [editStartDate, setEditStartDate] = useState('');
 
   const filteredLoans = loans.filter(loan => {
     const matchesSearch = loan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -50,6 +58,40 @@ export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDupli
       default:
         return null;
     }
+  };
+
+  const openEditModal = (loan: SavedLoan) => {
+    setEditingLoan(loan);
+    setEditName(loan.name);
+    setEditClient(loan.clientName);
+    setEditNotes(loan.notes || '');
+    setEditAmount(loan.params.amount);
+    setEditRate(loan.params.monthlyRate);
+    setEditTerm(loan.params.term);
+    setEditStartDate(loan.params.startDate);
+    setMenuOpenId(null);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingLoan) return;
+    
+    const updatedLoan: SavedLoan = {
+      ...editingLoan,
+      name: editName,
+      clientName: editClient,
+      notes: editNotes,
+      params: {
+        ...editingLoan.params,
+        amount: editAmount,
+        monthlyRate: editRate,
+        term: editTerm,
+        startDate: editStartDate,
+      },
+      updatedAt: new Date().toISOString(),
+    };
+    
+    onUpdate(editingLoan.id, updatedLoan);
+    setEditingLoan(null);
   };
 
   if (loans.length === 0) {
@@ -189,11 +231,19 @@ export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDupli
                         Duplicar
                       </button>
                       <button
-                        onClick={() => { onExport(loan); setMenuOpenId(null); }}
+                        onClick={() => { openEditModal(loan); }}
                         className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--bg-secondary)] flex items-center gap-2"
                         style={{ color: 'var(--text-primary)' }}
                       >
                         <Edit2 className="w-4 h-4" />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => { onExport(loan); setMenuOpenId(null); }}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-[var(--bg-secondary)] flex items-center gap-2"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        <Copy className="w-4 h-4" />
                         Exportar
                       </button>
                       <button
@@ -217,6 +267,120 @@ export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDupli
           ))}
         </div>
       </div>
+
+      {/* Modal de Edición */}
+      {editingLoan && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                Editar Préstamo
+              </h2>
+              <button
+                onClick={() => setEditingLoan(null)}
+                className="btn btn-secondary"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="label">Nombre del Préstamo</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label className="label">Cliente</label>
+                <input
+                  type="text"
+                  value={editClient}
+                  onChange={(e) => setEditClient(e.target.value)}
+                  className="input"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Monto (Bs.)</label>
+                  <input
+                    type="number"
+                    value={editAmount}
+                    onChange={(e) => setEditAmount(Number(e.target.value))}
+                    className="input"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Tasa Mensual (%)</label>
+                  <input
+                    type="number"
+                    value={editRate}
+                    onChange={(e) => setEditRate(Number(e.target.value))}
+                    className="input"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Plazo (meses)</label>
+                  <input
+                    type="number"
+                    value={editTerm}
+                    onChange={(e) => setEditTerm(Number(e.target.value))}
+                    className="input"
+                    min="1"
+                    step="1"
+                  />
+                </div>
+
+                <div>
+                  <label className="label">Fecha de Inicio</label>
+                  <input
+                    type="date"
+                    value={editStartDate}
+                    onChange={(e) => setEditStartDate(e.target.value)}
+                    className="input"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Notas</label>
+                <textarea
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  className="input"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleSaveEdit}
+                  className="btn btn-primary flex-1"
+                >
+                  Guardar Cambios
+                </button>
+                <button
+                  onClick={() => setEditingLoan(null)}
+                  className="btn btn-secondary flex-1"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
