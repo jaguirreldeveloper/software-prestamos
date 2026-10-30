@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn, User, Lock, AlertCircle } from 'lucide-react';
+import { LogIn, User, Lock, AlertCircle, Shield } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
@@ -26,117 +26,156 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 animate-fadeIn" style={{ background: 'var(--bg-primary)' }}>
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">💰</span>
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl" style={{ background: 'var(--gradient-primary)' }}>
+            <span className="text-4xl">💰</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Sistema de Préstamos</h1>
-          <p className="text-sm text-blue-300 mt-1">Inicia sesión para continuar</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Sistema de Préstamos
+          </h1>
+          <p className="text-sm mt-2" style={{ color: 'var(--text-tertiary)' }}>
+            Inicia sesión para continuar
+          </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="card">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-sm text-slate-300 mb-2 block">Email</label>
+              <label className="label">Email</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="input pl-11"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-slate-300 mb-2 block">Contraseña</label>
+              <label className="label">Contraseña</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="input pl-11"
                   required
                 />
               </div>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <p className="text-sm text-red-300">{error}</p>
+              <div className="badge badge-danger w-full p-3">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <p className="text-sm">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transition-all"
+              className="btn btn-primary w-full py-3"
             >
-              <LogIn className="w-4 h-4" />
+              <LogIn className="w-5 h-5" />
               Iniciar Sesión
             </button>
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-6 pt-6 border-t border-slate-700/50">
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--border-primary)' }}>
             <button
               onClick={() => setShowCredentials(!showCredentials)}
-              className="w-full text-sm text-blue-400 hover:text-blue-300 transition-all"
+              className="w-full text-sm font-medium transition-colors hover:opacity-80"
+              style={{ color: 'var(--accent-primary)' }}
             >
               {showCredentials ? '🔒 Ocultar' : '🔑 Ver'} credenciales de demostración
             </button>
 
             {showCredentials && (
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-slate-400 mb-2">Click para autocompletar:</p>
+              <div className="mt-4 space-y-2 animate-fadeIn">
+                <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+                  Click para autocompletar:
+                </p>
                 
                 <button
                   onClick={() => fillDemoCredentials('admin@prestamos.com', 'admin123')}
-                  className="w-full text-left p-2 bg-purple-500/10 border border-purple-500/30 rounded-lg hover:bg-purple-500/20 transition-all"
+                  className="w-full text-left p-3 rounded-lg transition-all hover:scale-[1.02]"
+                  style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}
                 >
-                  <p className="text-xs font-semibold text-purple-300">👑 Admin</p>
-                  <p className="text-xs text-slate-400">admin@prestamos.com / admin123</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Shield className="w-4 h-4" style={{ color: 'var(--accent-secondary)' }} />
+                    <p className="text-sm font-semibold" style={{ color: 'var(--accent-secondary)' }}>
+                      👑 Admin
+                    </p>
+                  </div>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    admin@prestamos.com / admin123
+                  </p>
                 </button>
 
                 <button
                   onClick={() => fillDemoCredentials('gerente@prestamos.com', 'gerente123')}
-                  className="w-full text-left p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 transition-all"
+                  className="w-full text-left p-3 rounded-lg transition-all hover:scale-[1.02]"
+                  style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
                 >
-                  <p className="text-xs font-semibold text-blue-300">💼 Gerente</p>
-                  <p className="text-xs text-slate-400">gerente@prestamos.com / gerente123</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <User className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                    <p className="text-sm font-semibold" style={{ color: 'var(--accent-primary)' }}>
+                      💼 Gerente
+                    </p>
+                  </div>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    gerente@prestamos.com / gerente123
+                  </p>
                 </button>
 
                 <button
                   onClick={() => fillDemoCredentials('operador@prestamos.com', 'operador123')}
-                  className="w-full text-left p-2 bg-green-500/10 border border-green-500/30 rounded-lg hover:bg-green-500/20 transition-all"
+                  className="w-full text-left p-3 rounded-lg transition-all hover:scale-[1.02]"
+                  style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
                 >
-                  <p className="text-xs font-semibold text-green-300">⚙️ Operador</p>
-                  <p className="text-xs text-slate-400">operador@prestamos.com / operador123</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <User className="w-4 h-4" style={{ color: 'var(--accent-success)' }} />
+                    <p className="text-sm font-semibold" style={{ color: 'var(--accent-success)' }}>
+                      ⚙️ Operador
+                    </p>
+                  </div>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    operador@prestamos.com / operador123
+                  </p>
                 </button>
 
                 <button
                   onClick={() => fillDemoCredentials('viewer@prestamos.com', 'viewer123')}
-                  className="w-full text-left p-2 bg-slate-500/10 border border-slate-500/30 rounded-lg hover:bg-slate-500/20 transition-all"
+                  className="w-full text-left p-3 rounded-lg transition-all hover:scale-[1.02]"
+                  style={{ background: 'rgba(107, 114, 128, 0.1)', border: '1px solid rgba(107, 114, 128, 0.2)' }}
                 >
-                  <p className="text-xs font-semibold text-slate-300">👁️ Solo Lectura</p>
-                  <p className="text-xs text-slate-400">viewer@prestamos.com / viewer123</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <User className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                    <p className="text-sm font-semibold" style={{ color: 'var(--text-tertiary)' }}>
+                      👁️ Solo Lectura
+                    </p>
+                  </div>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    viewer@prestamos.com / viewer123
+                  </p>
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        <p className="text-center text-xs text-slate-500 mt-6">
-          Sistema de Préstamos v2.0 — Todos los derechos reservados
+        <p className="text-center text-xs mt-6" style={{ color: 'var(--text-muted)' }}>
+          Sistema de Préstamos v3.0 — Todos los derechos reservados
         </p>
       </div>
     </div>

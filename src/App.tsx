@@ -244,18 +244,22 @@ function AppContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
       {/* Header */}
-      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-blue-500/20">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="glass border-b sticky top-0 z-40" style={{ borderColor: 'var(--border-primary)' }}>
+        <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'var(--gradient-primary)' }}>
                 <Calculator className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Sistema de Préstamos</h1>
-                <p className="text-xs text-blue-300">Gestión completa de amortización</p>
+                <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Sistema de Préstamos
+                </h1>
+                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  Gestión completa de amortización
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -307,21 +311,26 @@ function AppContent() {
       </header>
 
       {/* Navigation Tabs */}
-      <nav className="bg-slate-800/30 border-b border-blue-500/10">
+      <nav className="border-b" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-3 text-xs md:text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-blue-400 text-blue-300 bg-blue-500/10'
-                    : 'border-transparent text-slate-400 hover:text-blue-300 hover:border-blue-500/50'
-                }`}
+                className="relative flex items-center gap-2 px-4 py-3 text-xs md:text-sm font-medium whitespace-nowrap transition-all group"
+                style={{ 
+                  color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                }}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <span className="hidden sm:inline">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ background: 'var(--gradient-primary)' }}
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -409,10 +418,10 @@ function AppContent() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-800/30 border-t border-blue-500/10 py-4 mt-8">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-xs text-slate-500">
-            Sistema de Préstamos v2.0 — Amortización Francesa — Datos guardados localmente
+      <footer className="border-t mt-8" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
+        <div className="max-w-7xl mx-auto px-4 py-4 text-center">
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Sistema de Préstamos v3.0 — Amortización Francesa — Datos guardados localmente
           </p>
         </div>
       </footer>
