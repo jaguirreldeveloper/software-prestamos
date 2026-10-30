@@ -15,7 +15,9 @@ export default function LoanCalculator({ onCalculate, defaultParams, onSave }: P
   const [startDate, setStartDate] = useState(defaultParams.startDate);
   const [result, setResult] = useState<{
     monthlyPayment: number;
+    monthlyPaymentRounded: number;
     totalPayment: number;
+    totalRoundedPayment: number;
     totalInterest: number;
   } | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -30,10 +32,12 @@ export default function LoanCalculator({ onCalculate, defaultParams, onSave }: P
   const handleCalculate = () => {
     const rate = monthlyRate / 100;
     const monthlyPayment = amount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+    const monthlyPaymentRounded = Math.ceil(monthlyPayment); // Redondeo al entero superior
     const totalPayment = monthlyPayment * term;
+    const totalRoundedPayment = monthlyPaymentRounded * term;
     const totalInterest = totalPayment - amount;
 
-    setResult({ monthlyPayment, totalPayment, totalInterest });
+    setResult({ monthlyPayment, monthlyPaymentRounded, totalPayment, totalRoundedPayment, totalInterest });
     onCalculate({ amount, monthlyRate, term, startDate });
   };
 
@@ -211,16 +215,36 @@ export default function LoanCalculator({ onCalculate, defaultParams, onSave }: P
         {result && (
           <>
             <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 backdrop-blur-sm rounded-2xl border border-blue-500/30 p-5">
-              <p className="text-sm text-blue-300 mb-1">Cuota Mensual</p>
+              <p className="text-sm text-blue-300 mb-1">Cuota Mensual (Exacta)</p>
               <p className="text-3xl font-bold text-white">
                 Bs. {formatCurrency(result.monthlyPayment)}
               </p>
             </div>
 
+            <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 backdrop-blur-sm rounded-2xl border border-purple-500/30 p-5">
+              <p className="text-sm text-purple-300 mb-1">💰 Cuota Redondeada</p>
+              <p className="text-3xl font-bold text-white">
+                Bs. {formatCurrency(result.monthlyPaymentRounded)}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                +{formatCurrency(result.monthlyPaymentRounded - result.monthlyPayment)} por cuota
+              </p>
+            </div>
+
             <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-600/30 p-5">
-              <p className="text-sm text-slate-400 mb-1">Total a Pagar</p>
+              <p className="text-sm text-slate-400 mb-1">Total a Pagar (Exacto)</p>
               <p className="text-xl font-bold text-white">
                 Bs. {formatCurrency(result.totalPayment)}
+              </p>
+            </div>
+
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-5">
+              <p className="text-sm text-purple-300 mb-1">💰 Total Redondeado</p>
+              <p className="text-xl font-bold text-purple-300">
+                Bs. {formatCurrency(result.totalRoundedPayment)}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                +{formatCurrency(result.totalRoundedPayment - result.totalPayment)} total
               </p>
             </div>
 
