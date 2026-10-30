@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # ============================================
-# 🚀 Script de Commits - Sistema de Préstamos v3.0
+# 🚀 Script de Commits - Sistema de Préstamos v4.0
 # ============================================
-# 36 commits específicos organizados en 8 fases
+# 52 commits específicos organizados en 10 fases
 # Ejecutar: chmod +x apply-commits.sh && ./apply-commits.sh
 
 set -e  # Detener si hay error
 
-echo "🚀 Iniciando commits del Sistema de Préstamos v3.0..."
+echo "🚀 Iniciando commits del Sistema de Préstamos v4.0..."
 echo "================================================"
-echo "📋 Total de commits: 36"
+echo "📋 Total de commits: 52"
 echo ""
 
 # Verificar que estamos en un repositorio git
@@ -27,7 +27,7 @@ commit_step() {
     local files=$3
     
     echo ""
-    echo "📌 Commit $step_num/36: $message"
+    echo "📌 Commit $step_num/52: $message"
     echo "   Archivos: $files"
     
     read -p "   ¿Ejecutar este commit? (s/n): " confirm
@@ -47,7 +47,7 @@ auto_commit() {
     local files=$3
     
     echo ""
-    echo "📌 Commit $step_num/36: $message"
+    echo "📌 Commit $step_num/52: $message"
     echo "   Archivos: $files"
     
     git add $files
@@ -342,6 +342,86 @@ $COMMIT_FUNC 36 \
     "src/components/LoanRenegotiation.tsx src/App.tsx"
 
 # ============================================
+# FASE 9: BACKEND NODE.JS (Commits 37-48)
+# ============================================
+echo ""
+echo "═══════════════════════════════════════"
+echo "  🖥️ FASE 9: BACKEND NODE.JS"
+echo "═══════════════════════════════════════"
+
+$COMMIT_FUNC 37 \
+    "chore(backend): inicializar proyecto backend con Node.js, TypeScript y configuración" \
+    "backend/package.json backend/tsconfig.json backend/.env.example"
+
+$COMMIT_FUNC 38 \
+    "feat(backend): crear schema de base de datos PostgreSQL con Prisma (6 tablas)" \
+    "backend/prisma/schema.prisma"
+
+$COMMIT_FUNC 39 \
+    "feat(backend): configurar servidor Express con middlewares de seguridad" \
+    "backend/src/index.ts backend/src/config/"
+
+$COMMIT_FUNC 40 \
+    "feat(backend): implementar middleware de autenticación JWT y manejo de errores" \
+    "backend/src/middleware/auth.middleware.ts backend/src/middleware/error.middleware.ts"
+
+$COMMIT_FUNC 41 \
+    "feat(backend): implementar controlador y rutas de autenticación (register, login, getMe)" \
+    "backend/src/controllers/auth.controller.ts backend/src/routes/auth.routes.ts"
+
+$COMMIT_FUNC 42 \
+    "feat(backend): implementar controlador y rutas de préstamos (CRUD completo + duplicar)" \
+    "backend/src/controllers/loan.controller.ts backend/src/routes/loan.routes.ts"
+
+$COMMIT_FUNC 43 \
+    "feat(backend): implementar controlador y rutas de pagos (CRUD completo)" \
+    "backend/src/controllers/payment.controller.ts backend/src/routes/payment.routes.ts"
+
+$COMMIT_FUNC 44 \
+    "feat(backend): implementar controlador y rutas de garantes (CRUD completo)" \
+    "backend/src/controllers/guarantor.controller.ts backend/src/routes/guarantor.routes.ts"
+
+$COMMIT_FUNC 45 \
+    "feat(backend): implementar controlador y rutas de configuración de marca" \
+    "backend/src/controllers/brand.controller.ts backend/src/routes/brand.routes.ts"
+
+$COMMIT_FUNC 46 \
+    "feat(backend): implementar servicios de negocio (loan, payment, guarantor, brand)" \
+    "backend/src/services/"
+
+$COMMIT_FUNC 47 \
+    "feat(backend): integrar Stripe para pagos con payment intents y webhooks" \
+    "backend/src/controllers/stripe.controller.ts backend/src/routes/stripe.routes.ts backend/src/services/stripe.service.ts"
+
+$COMMIT_FUNC 48 \
+    "feat(backend): integrar PayPal para pagos con órdenes y webhooks" \
+    "backend/src/controllers/paypal.controller.ts backend/src/routes/paypal.routes.ts backend/src/services/paypal.service.ts"
+
+# ============================================
+# FASE 10: TESTS Y OPTIMIZACIÓN (Commits 49-52)
+# ============================================
+echo ""
+echo "═══════════════════════════════════════"
+echo "  🧪 FASE 10: TESTS Y OPTIMIZACIÓN"
+echo "═══════════════════════════════════════"
+
+$COMMIT_FUNC 49 \
+    "test: configurar Jest con React Testing Library y setup global" \
+    "jest.config.js src/setupTests.ts"
+
+$COMMIT_FUNC 50 \
+    "test: implementar 11 tests unitarios para lógica de cálculo de amortización" \
+    "src/__tests__/calculations.test.ts src/utils/calculations.ts"
+
+$COMMIT_FUNC 51 \
+    "test: implementar 13 tests de componentes (Login y GuarantorSystem)" \
+    "src/__tests__/Login.test.tsx src/__tests__/GuarantorSystem.test.tsx"
+
+$COMMIT_FUNC 52 \
+    "perf: implementar lazy loading con React.lazy y Suspense para 9 componentes" \
+    "src/App.tsx"
+
+# ============================================
 # RESULTADO FINAL
 # ============================================
 echo ""
@@ -358,11 +438,13 @@ echo "  📋 Fase 5: Documentación (2 commits)"
 echo "  💎 Fase 6: Mejoras Avanzadas (3 commits)"
 echo "  📊 Fase 7: Mejoras en Tabla (9 commits)"
 echo "  🚀 Fase 8: Nuevas Funcionalidades (10 commits)"
+echo "  🖥️ Fase 9: Backend Node.js (12 commits)"
+echo "  🧪 Fase 10: Tests y Optimización (4 commits)"
 echo ""
 echo "📈 Últimos commits:"
-git log --oneline -36
+git log --oneline -52
 echo ""
 echo "🔍 Para ver el historial completo:"
 echo "   git log --oneline --graph"
 echo ""
-echo "🎉 ¡Listo! Sistema de Préstamos v3.0"
+echo "🎉 ¡Listo! Sistema de Préstamos v4.0 - 100% Completado"

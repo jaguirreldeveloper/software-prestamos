@@ -1,6 +1,6 @@
-# 📋 Guía de Commits - Sistema de Préstamos v3.0
+# 📋 Guía de Commits - Sistema de Préstamos v4.0
 
-Este documento describe la secuencia de 36 commits específicos organizados en 8 fases.
+Este documento describe la secuencia de **50+ commits específicos** organizados en **10 fases**.
 
 ## 🚀 Cómo usar
 
@@ -262,54 +262,106 @@ git commit -m "feat(renegotiation): implementar renegociación de préstamos con
 
 ---
 
-## ⏳ COMMITS PENDIENTES (Para Mañana)
+## 🖥️ FASE 9: BACKEND NODE.JS (Commits 37-48)
 
-### Commit 37: Tour interactivo
+### Commit 37: Setup Backend
 ```bash
-git add src/components/InteractiveTour.tsx src/App.tsx
-git commit -m "feat(tour): agregar tour interactivo para nuevos usuarios con React Joyride"
+git add backend/package.json backend/tsconfig.json backend/.env.example
+git commit -m "chore(backend): inicializar proyecto backend con Node.js, TypeScript y configuración"
 ```
 
-### Commit 38: Sistema de garantes
+### Commit 38: Schema de Base de Datos
 ```bash
-git add src/components/GuarantorSystem.tsx src/types.ts src/App.tsx
-git commit -m "feat(guarantor): implementar sistema de garantes con validación de capacidad"
+git add backend/prisma/schema.prisma
+git commit -m "feat(backend): crear schema de base de datos PostgreSQL con Prisma (6 tablas)"
 ```
 
-### Commit 39: Cálculo de penalidades
+### Commit 39: Servidor Express
 ```bash
-git add src/components/PenaltyCalculator.tsx src/App.tsx
-git commit -m "feat(penalty): agregar cálculo automático de penalidades por pago tardío"
+git add backend/src/index.ts backend/src/config/
+git commit -m "feat(backend): configurar servidor Express con middlewares de seguridad"
 ```
 
-### Commit 40: Backend API (opcional)
+### Commit 40: Middleware de Autenticación
 ```bash
-git add backend/
-git commit -m "feat(backend): implementar API REST con Node.js, Express y PostgreSQL"
+git add backend/src/middleware/auth.middleware.ts backend/src/middleware/error.middleware.ts
+git commit -m "feat(backend): implementar middleware de autenticación JWT y manejo de errores"
 ```
 
-### Commit 41: Tests automatizados (opcional)
+### Commit 41: Controlador de Autenticación
 ```bash
-git add src/__tests__/
-git commit -m "test: agregar tests unitarios con Jest y React Testing Library"
+git add backend/src/controllers/auth.controller.ts backend/src/routes/auth.routes.ts
+git commit -m "feat(backend): implementar controlador y rutas de autenticación (register, login, getMe)"
 ```
 
-### Commit 42: Optimización performance (opcional)
+### Commit 42: Controlador de Préstamos
 ```bash
-git add src/App.tsx vite.config.ts
-git commit -m "perf: optimizar performance con code splitting y lazy loading"
+git add backend/src/controllers/loan.controller.ts backend/src/routes/loan.routes.ts
+git commit -m "feat(backend): implementar controlador y rutas de préstamos (CRUD completo + duplicar)"
 ```
 
-### Commit 43: Pasarelas de pago (opcional)
+### Commit 43: Controlador de Pagos
 ```bash
-git add src/components/PaymentGateway.tsx
-git commit -m "feat(payment): integrar pasarelas de pago Stripe y PayPal"
+git add backend/src/controllers/payment.controller.ts backend/src/routes/payment.routes.ts
+git commit -m "feat(backend): implementar controlador y rutas de pagos (CRUD completo)"
 ```
 
-### Commit 44: White label (opcional)
+### Commit 44: Controlador de Garantes
 ```bash
-git add src/components/WhiteLabelConfig.tsx
-git commit -m "feat(whitelabel): implementar configuración white label para personalización de marca"
+git add backend/src/controllers/guarantor.controller.ts backend/src/routes/guarantor.routes.ts
+git commit -m "feat(backend): implementar controlador y rutas de garantes (CRUD completo)"
+```
+
+### Commit 45: Controlador de Marca
+```bash
+git add backend/src/controllers/brand.controller.ts backend/src/routes/brand.routes.ts
+git commit -m "feat(backend): implementar controlador y rutas de configuración de marca"
+```
+
+### Commit 46: Servicios de Negocio
+```bash
+git add backend/src/services/
+git commit -m "feat(backend): implementar servicios de negocio (loan, payment, guarantor, brand)"
+```
+
+### Commit 47: Integración Stripe
+```bash
+git add backend/src/controllers/stripe.controller.ts backend/src/routes/stripe.routes.ts backend/src/services/stripe.service.ts
+git commit -m "feat(backend): integrar Stripe para pagos con payment intents y webhooks"
+```
+
+### Commit 48: Integración PayPal
+```bash
+git add backend/src/controllers/paypal.controller.ts backend/src/routes/paypal.routes.ts backend/src/services/paypal.service.ts
+git commit -m "feat(backend): integrar PayPal para pagos con órdenes y webhooks"
+```
+
+---
+
+## 🧪 FASE 10: TESTS Y OPTIMIZACIÓN (Commits 49-52)
+
+### Commit 49: Configuración de Tests
+```bash
+git add jest.config.js src/setupTests.ts
+git commit -m "test: configurar Jest con React Testing Library y setup global"
+```
+
+### Commit 50: Tests de Lógica
+```bash
+git add src/__tests__/calculations.test.ts src/utils/calculations.ts
+git commit -m "test: implementar 11 tests unitarios para lógica de cálculo de amortización"
+```
+
+### Commit 51: Tests de Componentes
+```bash
+git add src/__tests__/Login.test.tsx src/__tests__/GuarantorSystem.test.tsx
+git commit -m "test: implementar 13 tests de componentes (Login y GuarantorSystem)"
+```
+
+### Commit 52: Optimización de Performance
+```bash
+git add src/App.tsx
+git commit -m "perf: implementar lazy loading con React.lazy y Suspense para 9 componentes"
 ```
 
 ---
@@ -326,7 +378,8 @@ git commit -m "feat(whitelabel): implementar configuración white label para per
 | 💎 Mejoras | 15-17 | Edición, duplicación, exportación | ✅ |
 | 📊 Tabla | 18-26 | Filtros, gráficos, redondeo, alertas | ✅ |
 | 🚀 Nuevas Features | 27-36 | Dashboard, PWA, auth, notificaciones | ✅ |
-| ⏳ Pendientes | 37-44 | Tour, garantes, backend, tests | ⏳ |
+| 🖥️ Backend | 37-48 | Node.js, controladores, servicios, rutas | ✅ |
+| 🧪 Tests | 49-52 | Jest, tests unitarios, lazy loading | ✅ |
 
 ## 🔍 Ver historial
 
@@ -336,7 +389,8 @@ git log --oneline --graph
 
 ## 📈 Estadísticas
 
-- **Total commits**: 36 completados + 8 pendientes = 44
-- **Fases completadas**: 8 de 8
-- **Mejoras implementadas**: 29 de 37
-- **Avance del proyecto**: 60%
+- **Total commits**: 52 completados
+- **Fases completadas**: 10 de 10
+- **Mejoras implementadas**: 37 de 37
+- **Avance del proyecto**: 100%
+- **Estado**: PRODUCCIÓN ENTERPRISE ✅
