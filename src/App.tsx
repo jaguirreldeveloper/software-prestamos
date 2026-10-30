@@ -12,13 +12,24 @@ import ProjectPlan from './components/ProjectPlan';
 import FinancialDashboard from './components/FinancialDashboard';
 import ExcelImport from './components/ExcelImport';
 import GlobalSearch from './components/GlobalSearch';
+import NotificationSystem from './components/NotificationSystem';
+import Login from './components/Login';
+import MonthlyReport from './components/MonthlyReport';
+import LoanRenegotiation from './components/LoanRenegotiation';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoanParams, AmortizationRow, SavedLoan, PaymentRecord } from './types';
-import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale, GitBranch, FileText, TrendingUp, Upload, Sun, Moon } from 'lucide-react';
+import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale, GitBranch, FileText, TrendingUp, Upload, Sun, Moon, BarChart3, RefreshCw, LogOut, User } from 'lucide-react';
 
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('calculator');
+  
+  // Si no está autenticado, mostrar login
+  if (!isAuthenticated) {
+    return <Login />;
+  }
   const [loanParams, setLoanParams] = useState<LoanParams>({
     amount: 1000,
     monthlyRate: 10,
@@ -156,6 +167,36 @@ function AppContent() {
     alert(`✅ ${newLoans.length} préstamos importados exitosamente`);
   };
 
+  const handleRenegotiateLoan = (loanId: string, newParams: LoanParams) => {
+    const data = calculateAmortization(newParams);
+    setSavedLoans(savedLoans.map(l => {
+      if (l.id === loanId) {
+        return {
+          ...l,
+          params: newParams,
+          summary: {
+            monthlyPayment: data.monthlyPayment,
+            monthlyPaymentRounded: data.monthlyPaymentRounded,
+            totalPayment: data.totalPayment,
+            totalRoundedPayment: data.totalRoundedPayment,
+            totalInterest: data.totalInterest,
+          },
+          payments: [],
+          status: 'active',
+        };
+      }
+      return l;
+    }));
+    
+    // Reload the loan
+    const updatedLoan = savedLoans.find(l => l.id === loanId);
+    if (updatedLoan) {
+      handleLoadLoan({ ...updatedLoan, params: newParams });
+    }
+    
+    alert('✅ Préstamo renegociado exitosamente');
+  };
+
   const handleRegisterPayment = (payment: PaymentRecord) => {
     const newPayments = [...payments, payment];
     setPayments(newPayments);
@@ -187,10 +228,12 @@ function AppContent() {
     { id: 'calculator', label: 'Calculadora', icon: Calculator },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'financial', label: 'Métricas', icon: TrendingUp },
+    { id: 'reports', label: 'Reportes', icon: BarChart3 },
     { id: 'table', label: 'Tabla', icon: Table },
     { id: 'calendar', label: 'Calendario', icon: Calendar },
     { id: 'payments', label: 'Pagos', icon: CreditCard },
     { id: 'simulator', label: 'Pago Anticipado', icon: Zap },
+    { id: 'renegotiation', label: 'Renegociar', icon: RefreshCw },
     { id: 'comparator', label: 'Comparador', icon: Scale },
     { id: 'history', label: 'Historial', icon: FolderOpen },
     { id: 'import', label: 'Importar', icon: Upload },
@@ -222,6 +265,21 @@ function AppContent() {
                 {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
               <GlobalSearch loans={savedLoans} onSelectLoan={handleLoadLoan} />
+              <NotificationSystem loans={savedLoans} />
+              <div className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg">
+                <User className="w-4 h-4 text-blue-400" />
+                <div className="hidden md:block">
+                  <p className="text-xs text-white font-medium">{user?.name}</p>
+                  <p className="text-xs text-slate-400 capitalize">{user?.role}</p>
+                </div>
+              </div>
+              <button
+                onClick={logout}
+                className="p-2 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/30 transition-all"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
               <div className="text-right hidden md:block">
                 <p className="text-sm text-blue-300">Tasa Mora</p>
                 <div className="flex items-center gap-1">
@@ -330,6 +388,22 @@ function AppContent() {
         {activeTab === 'import' && (
           <ExcelImport onImport={handleImportLoans} />
         )}
+        {activeTab === 'reports' && (
+          <MonthlyReport loans={savedLoans} />
+        )}
+        {activeTab === 'renegotiation' && currentLoanId && (
+          <LoanRenegotiation
+            loan={savedLoans.find(l => l.id === currentLoanId) || savedLoans[0]}
+            onRenegotiate={handleRenegotiateLoan}
+          />
+        )}
+        {activeTab === 'renegotiation' && !currentLoanId && savedLoans.length === 0 && (
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">🔄</div>
+            <h3 className="text-xl text-slate-400">No hay préstamos para renegociar</h3>
+            <p className="text-slate-500 mt-2">Calcula y guarda un préstamo primero</p>
+          </div>
+        )}
       </main>
 
       {/* Footer */}
@@ -429,7 +503,9 @@ function calculateAmortization(params: LoanParams) {
 function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
