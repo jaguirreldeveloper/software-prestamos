@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useBrand } from '../contexts/BrandContext';
 import { LogIn, User, Lock, AlertCircle, Shield } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
+  const { brand } = useBrand();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,14 +32,18 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl" style={{ background: 'var(--gradient-primary)' }}>
-            <span className="text-4xl">💰</span>
-          </div>
+          {brand.logoUrl ? (
+            <img src={brand.logoUrl} alt={brand.appName} className="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-xl object-cover" />
+          ) : (
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl" style={{ background: 'var(--gradient-primary)' }}>
+              <span className="text-4xl">💰</span>
+            </div>
+          )}
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            Sistema de Préstamos
+            {brand.appName}
           </h1>
           <p className="text-sm mt-2" style={{ color: 'var(--text-tertiary)' }}>
-            Inicia sesión para continuar
+            {brand.tagline}
           </p>
         </div>
 
@@ -175,7 +181,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-xs mt-6" style={{ color: 'var(--text-muted)' }}>
-          Sistema de Préstamos v3.0 — Todos los derechos reservados
+          {brand.company} — {brand.appName} v3.1
         </p>
       </div>
     </div>

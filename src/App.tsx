@@ -1,87 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
-import DashboardSaaS from './components/DashboardSaaS';
-import LoanCalculator from './components/LoanCalculator';
-import AmortizationTable from './components/AmortizationTable';
-import PaymentCalendar from './components/PaymentCalendar';
-import PaymentRegister from './components/PaymentRegister';
-import LoanHistory from './components/LoanHistory';
 import Login from './components/Login';
 import InteractiveTour from './components/InteractiveTour';
-import GuarantorSystem from './components/GuarantorSystem';
-import PenaltyCalculator from './components/PenaltyCalculator';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BrandProvider } from './contexts/BrandContext';
 import { LoanParams, AmortizationRow, SavedLoan, PaymentRecord } from './types';
+import { calculateAmortization } from './utils/calculations';
 
-function calculateAmortization(params: LoanParams) {
-  const { amount, monthlyRate, term, startDate } = params;
-  const rate = monthlyRate / 100;
-  const monthlyPayment = amount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-  const monthlyPaymentRounded = Math.ceil(monthlyPayment);
-  
-  const rows: AmortizationRow[] = [];
-  let balance = amount;
-  let totalInterest = 0;
-  let totalPayment = 0;
-  let totalRoundedPayment = 0;
-  let accumulatedDifference = 0;
-
-  for (let i = 1; i <= term; i++) {
-    const interest = Math.round(balance * rate * 100) / 100;
-    let capital: number;
-    let payment: number;
-    let roundedPayment: number;
-    
-    if (i === term) {
-      capital = Math.round(balance * 100) / 100;
-      payment = Math.round((capital + interest) * 100) / 100;
-      roundedPayment = Math.round((payment - accumulatedDifference) * 100) / 100;
-    } else {
-      capital = Math.round((monthlyPayment - interest) * 100) / 100;
-      payment = Math.round(monthlyPayment * 100) / 100;
-      roundedPayment = monthlyPaymentRounded;
-    }
-    
-    const difference = Math.round((roundedPayment - payment) * 100) / 100;
-    accumulatedDifference += difference;
-    accumulatedDifference = Math.round(accumulatedDifference * 100) / 100;
-    
-    const newBalance = Math.round((balance - capital) * 100) / 100;
-    const paymentDate = new Date(startDate);
-    paymentDate.setMonth(paymentDate.getMonth() + i);
-
-    totalInterest += interest;
-    totalPayment += payment;
-    totalRoundedPayment += roundedPayment;
-
-    rows.push({
-      number: i,
-      initialBalance: Math.round(balance * 100) / 100,
-      payment: payment,
-      interest: interest,
-      capital: capital,
-      finalBalance: newBalance,
-      paymentDate: paymentDate.toISOString().split('T')[0],
-      isPaid: false,
-      roundedPayment: roundedPayment,
-      roundingDifference: difference,
-      accumulatedRounding: accumulatedDifference,
-    });
-
-    balance = newBalance;
-  }
-
-  return { 
-    monthlyPayment: Math.round(monthlyPayment * 100) / 100, 
-    monthlyPaymentRounded: monthlyPaymentRounded,
-    totalPayment: Math.round(totalPayment * 100) / 100, 
-    totalRoundedPayment: Math.round(totalRoundedPayment * 100) / 100,
-    totalInterest: Math.round(totalInterest * 100) / 100, 
-    rows 
-  };
-}
+// Lazy load components for better performance
+const DashboardSaaS = lazy(() => import('./components/DashboardSaaS'));
+const LoanCalculator = lazy(() => import('./components/LoanCalculator'));
+const AmortizationTable = lazy(() => import('./components/AmortizationTable'));
+const PaymentCalendar = lazy(() => import('./components/PaymentCalendar'));
+const PaymentRegister = lazy(() => import('./components/PaymentRegister'));
+const LoanHistory = lazy(() => import('./components/LoanHistory'));
+const GuarantorSystem = lazy(() => import('./components/GuarantorSystem'));
+const PenaltyCalculator = lazy(() => import('./components/PenaltyCalculator'));
+const BrandSettings = lazy(() => import('./components/BrandSettings'));
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -218,6 +155,8 @@ function AppContent() {
         return <GuarantorSystem />;
       case 'penalties':
         return <PenaltyCalculator loans={savedLoans} moraRate={moraRate} />;
+      case 'brand':
+        return <BrandSettings />;
       default:
         return (
           <div className="empty-state">
@@ -237,7 +176,16 @@ function AppContent() {
       <div className="main-content">
         <Topbar />
         <main className="content-area">
-          {renderContent()}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p style={{ color: 'var(--text-tertiary)' }}>Cargando...</p>
+              </div>
+            </div>
+          }>
+            {renderContent()}
+          </Suspense>
         </main>
       </div>
     </div>
@@ -248,7 +196,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent />
+        <BrandProvider>
+          <AppContent />
+        </BrandProvider>
       </AuthProvider>
     </ThemeProvider>
   );

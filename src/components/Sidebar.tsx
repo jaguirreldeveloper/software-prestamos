@@ -17,9 +17,11 @@ import {
   LogOut,
   User,
   Users,
-  AlertTriangle
+  AlertTriangle,
+  Palette
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useBrand } from '../contexts/BrandContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -28,6 +30,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const { user, logout } = useAuth();
+  const { brand } = useBrand();
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'Principal' },
@@ -65,15 +68,19 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Logo */}
       <div className="p-6 border-b border-[var(--border-primary)]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
-            <span className="text-xl">💰</span>
-          </div>
+          {brand.logoUrl ? (
+            <img src={brand.logoUrl} alt={brand.appName} className="w-10 h-10 rounded-xl object-cover" />
+          ) : (
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
+              <span className="text-xl">💰</span>
+            </div>
+          )}
           <div>
             <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-              Préstamos
+              {brand.appName}
             </h1>
             <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-              Sistema de Gestión
+              {brand.tagline}
             </p>
           </div>
         </div>
@@ -123,6 +130,15 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               </button>
             );
           })}
+          <button
+            onClick={() => onTabChange('brand')}
+            className={`sidebar-nav-item w-[calc(100%-1rem)] ${
+              activeTab === 'brand' ? 'active' : ''
+            }`}
+          >
+            <Palette className="w-5 h-5" />
+            <span>Marca</span>
+          </button>
         </div>
       </nav>
 
