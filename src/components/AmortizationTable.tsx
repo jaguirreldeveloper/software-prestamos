@@ -43,6 +43,7 @@ export default function AmortizationTable({ rows, summary }: Props) {
   const [amountMax, setAmountMax] = useState<number | ''>('');
   const [showChart, setShowChart] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showRounding, setShowRounding] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
@@ -435,6 +436,10 @@ export default function AmortizationTable({ rows, summary }: Props) {
             </span>
           )}
         </button>
+        <button onClick={() => setShowRounding(!showRounding)} className={'px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ' + (showRounding ? 'bg-purple-500/20 border border-purple-500/50 text-purple-300' : 'bg-slate-800/50 border border-slate-600/50 text-slate-300 hover:bg-slate-700/50')}>
+          <span>💰</span>
+          Redondeo
+        </button>
         <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="px-3 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500">
           <option value={12}>12 por pagina</option>
           <option value={24}>24 por pagina</option>
@@ -640,6 +645,13 @@ export default function AmortizationTable({ rows, summary }: Props) {
                       <th className="px-4 py-3 text-center text-xs font-semibold text-blue-300 uppercase tracking-wider print:hidden">Progreso</th>
                     </>
                   )}
+                  {showRounding && (
+                    <>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-purple-300 uppercase tracking-wider">Cuota Redondeada</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-purple-300 uppercase tracking-wider">Diferencia</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-purple-300 uppercase tracking-wider">Acumulado</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -679,26 +691,38 @@ export default function AmortizationTable({ rows, summary }: Props) {
                         <td className="px-4 py-3 text-right text-green-400 print:text-green-600">Bs. {formatCurrency(row.capital)}</td>
                         {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-white font-medium print:text-black">Bs. {formatCurrency(Math.max(0, row.finalBalance))}</td>}
                         <td className="px-4 py-3 text-center text-slate-400 print:text-black">{formatDate(row.paymentDate)}</td>
-                        {viewMode === 'detailed' && (
-                          <>
-                            <td className="px-4 py-3 text-center print:hidden">
-                              <div className="flex items-center justify-center gap-2">
-                                <SparklineChart data={interestData} color="#ef4444" />
-                                <SparklineChart data={capitalData} color="#10b981" />
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 print:hidden">
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
-                                  <div className="h-full bg-gradient-to-r from-green-500 to-cyan-400 rounded-full transition-all" style={{ width: progressPercent + '%' }}></div>
-                                </div>
-                                <span className="text-xs text-slate-400 w-10">{progressPercent.toFixed(0)}%</span>
-                              </div>
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                      {isExpanded && viewMode === 'detailed' && (
+                              {viewMode === 'detailed' && (
+                                <>
+                                  <td className="px-4 py-3 text-center print:hidden">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <SparklineChart data={interestData} color="#ef4444" />
+                                      <SparklineChart data={capitalData} color="#10b981" />
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 print:hidden">
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-green-500 to-cyan-400 rounded-full transition-all" style={{ width: progressPercent + '%' }}></div>
+                                      </div>
+                                      <span className="text-xs text-slate-400 w-10">{progressPercent.toFixed(0)}%</span>
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                              {showRounding && (
+                                <>
+                                  <td className="px-4 py-3 text-right text-purple-300 font-medium">
+                                    Bs. {formatCurrency(row.roundedPayment || row.payment)}
+                                  </td>
+                                  <td className="px-4 py-3 text-right text-purple-400">
+                                    {row.roundingDifference ? '+' : ''}{formatCurrency(row.roundingDifference || 0)}
+                                  </td>
+                                  <td className="px-4 py-3 text-right text-purple-400">
+                                    {formatCurrency(row.accumulatedRounding || 0)}
+                                  </td>
+                                </>
+                              )}
+                            </tr>                      {isExpanded && viewMode === 'detailed' && (
                         <tr key={`expanded-${idx}`} className="bg-slate-900/50 print:hidden">
                           <td colSpan={9} className="px-4 py-4">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -747,6 +771,13 @@ export default function AmortizationTable({ rows, summary }: Props) {
                   {viewMode !== 'compact' && <td className="px-4 py-3"></td>}
                   <td className="px-4 py-3"></td>
                   {viewMode === 'detailed' && <><td className="px-4 py-3 print:hidden"></td><td className="px-4 py-3 print:hidden"></td></>}
+                  {showRounding && (
+                    <>
+                      <td className="px-4 py-3 text-right text-purple-300 font-bold">Bs. {formatCurrency(summary.totalRoundedPayment || totalPayments)}</td>
+                      <td className="px-4 py-3"></td>
+                      <td className="px-4 py-3"></td>
+                    </>
+                  )}
                 </tr>
               </tfoot>
             </table>

@@ -18,11 +18,16 @@ export interface AmortizationRow {
   paidAmount?: number;
   extraPayment?: number;
   mora?: number;
+  roundedPayment?: number;
+  roundingDifference?: number;
+  accumulatedRounding?: number;
 }
 
 export interface LoanSummary {
   monthlyPayment: number;
+  monthlyPaymentRounded?: number;
   totalPayment: number;
+  totalRoundedPayment?: number;
   totalInterest: number;
 }
 
