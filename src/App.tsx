@@ -235,7 +235,7 @@ function App() {
           />
         )}
         {activeTab === 'table' && (
-          <AmortizationTable data={amortizationData} summary={summary} />
+          <AmortizationTable rows={amortizationData} summary={summary} />
         )}
         {activeTab === 'calendar' && (
           <PaymentCalendar data={amortizationData} moraRate={moraRate} />
