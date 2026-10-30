@@ -24,12 +24,9 @@ import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOp
 function AppContent() {
   const { theme, toggleTheme } = useTheme();
   const { user, logout, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('calculator');
   
-  // Si no está autenticado, mostrar login
-  if (!isAuthenticated) {
-    return <Login />;
-  }
+  // TODOS los hooks deben declararse ANTES de cualquier return condicional
+  const [activeTab, setActiveTab] = useState('calculator');
   const [loanParams, setLoanParams] = useState<LoanParams>({
     amount: 1000,
     monthlyRate: 10,
@@ -61,6 +58,11 @@ function AppContent() {
   useEffect(() => {
     localStorage.setItem('savedLoans', JSON.stringify(savedLoans));
   }, [savedLoans]);
+
+  // Si no está autenticado, mostrar login (DESPUÉS de todos los hooks)
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   const handleCalculate = (params: LoanParams) => {
     setLoanParams(params);
