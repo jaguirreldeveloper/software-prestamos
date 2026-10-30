@@ -304,7 +304,7 @@ function calculateAmortization(params: LoanParams) {
   
   // Calcular cuota mensual con fórmula de amortización francesa
   const monthlyPayment = amount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-  const monthlyPaymentRounded = Math.ceil(monthlyPayment * 100) / 100; // Redondeo al centavo superior
+  const monthlyPaymentRounded = Math.ceil(monthlyPayment); // Redondeo al entero superior
   
   const rows: AmortizationRow[] = [];
   let balance = amount;
