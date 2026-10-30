@@ -9,9 +9,10 @@ interface Props {
   onUpdate: (id: string, updates: Partial<SavedLoan>) => void;
   onDuplicate: (loan: SavedLoan) => void;
   onExport: (loan: SavedLoan) => void;
+  onNavigate?: (tab: string) => void;
 }
 
-export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDuplicate, onExport }: Props) {
+export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDuplicate, onExport, onNavigate }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all');
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -59,7 +60,10 @@ export default function LoanHistory({ loans, onLoad, onDelete, onUpdate, onDupli
         <p className="empty-state-description">
           Comienza calculando un préstamo y guárdalo para verlo aquí
         </p>
-        <button className="btn btn-primary">
+        <button 
+          onClick={() => onNavigate?.('calculator')}
+          className="btn btn-primary"
+        >
           Crear Primer Préstamo
         </button>
       </div>

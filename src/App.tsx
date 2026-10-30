@@ -138,7 +138,7 @@ function AppContent() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardSaaS loans={savedLoans} />;
+        return <DashboardSaaS loans={savedLoans} onNavigate={setActiveTab} />;
       case 'calculator':
         return <LoanCalculator onCalculate={handleCalculate} defaultParams={loanParams} onSave={handleSaveLoan} />;
       case 'table':
@@ -148,7 +148,7 @@ function AppContent() {
       case 'payments':
         return <PaymentRegister rows={amortizationData} payments={payments} onRegisterPayment={handleRegisterPayment} monthlyPayment={summary.monthlyPayment} />;
       case 'history':
-        return <LoanHistory loans={savedLoans} onLoad={handleLoadLoan} onDelete={handleDeleteLoan} onUpdate={handleUpdateLoan} onDuplicate={handleDuplicateLoan} onExport={handleExportLoan} />;
+        return <LoanHistory loans={savedLoans} onLoad={handleLoadLoan} onDelete={handleDeleteLoan} onUpdate={handleUpdateLoan} onDuplicate={handleDuplicateLoan} onExport={handleExportLoan} onNavigate={setActiveTab} />;
       case 'tour':
         return <InteractiveTour />;
       case 'guarantors':

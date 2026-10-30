@@ -3,9 +3,10 @@ import { SavedLoan } from '../types';
 
 interface DashboardProps {
   loans: SavedLoan[];
+  onNavigate?: (tab: string) => void;
 }
 
-export default function DashboardSaaS({ loans }: DashboardProps) {
+export default function DashboardSaaS({ loans, onNavigate }: DashboardProps) {
   // Calcular métricas
   const totalLoans = loans.length;
   const activeLoans = loans.filter(l => l.status === 'active').length;
@@ -136,7 +137,10 @@ export default function DashboardSaaS({ loans }: DashboardProps) {
             <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
               Préstamos Recientes
             </h2>
-            <button className="btn btn-secondary text-sm">
+            <button 
+              onClick={() => onNavigate?.('history')}
+              className="btn btn-secondary text-sm"
+            >
               Ver todos
             </button>
           </div>
@@ -148,7 +152,10 @@ export default function DashboardSaaS({ loans }: DashboardProps) {
               <p className="empty-state-description">
                 Comienza creando tu primer préstamo
               </p>
-              <button className="btn btn-primary">
+              <button 
+                onClick={() => onNavigate?.('calculator')}
+                className="btn btn-primary"
+              >
                 Crear Préstamo
               </button>
             </div>
@@ -199,7 +206,11 @@ export default function DashboardSaaS({ loans }: DashboardProps) {
             Accesos Rápidos
           </h2>
           <div className="space-y-3">
-            <button className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" style={{ border: '1px solid var(--border-primary)' }}>
+            <button 
+              onClick={() => onNavigate?.('calculator')}
+              className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" 
+              style={{ border: '1px solid var(--border-primary)' }}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
                   <span className="text-xl">🧮</span>
@@ -215,7 +226,11 @@ export default function DashboardSaaS({ loans }: DashboardProps) {
               </div>
             </button>
 
-            <button className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" style={{ border: '1px solid var(--border-primary)' }}>
+            <button 
+              onClick={() => onNavigate?.('payments')}
+              className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" 
+              style={{ border: '1px solid var(--border-primary)' }}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
                   <span className="text-xl">💳</span>
@@ -231,7 +246,11 @@ export default function DashboardSaaS({ loans }: DashboardProps) {
               </div>
             </button>
 
-            <button className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" style={{ border: '1px solid var(--border-primary)' }}>
+            <button 
+              onClick={() => onNavigate?.('financial')}
+              className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" 
+              style={{ border: '1px solid var(--border-primary)' }}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
                   <span className="text-xl">📊</span>
@@ -247,7 +266,11 @@ export default function DashboardSaaS({ loans }: DashboardProps) {
               </div>
             </button>
 
-            <button className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" style={{ border: '1px solid var(--border-primary)' }}>
+            <button 
+              onClick={() => onNavigate?.('import')}
+              className="w-full p-4 rounded-xl text-left hover:bg-[var(--bg-secondary)] transition-colors" 
+              style={{ border: '1px solid var(--border-primary)' }}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
                   <span className="text-xl">📥</span>
