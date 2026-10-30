@@ -1,5 +1,64 @@
 @import "tailwindcss";
 
+/* Modo Claro */
+:root.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+}
+
+.light body {
+  background: linear-gradient(to bottom right, #f1f5f9, #e0e7ff, #f1f5f9) !important;
+}
+
+.light header {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.light nav {
+  background: rgba(241, 245, 249, 0.8) !important;
+}
+
+.light .bg-slate-800\/50 {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.light .bg-slate-900\/50 {
+  background: rgba(241, 245, 249, 0.9) !important;
+}
+
+.light .text-white {
+  color: #1e293b !important;
+}
+
+.light .text-slate-300 {
+  color: #475569 !important;
+}
+
+.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+.light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.light .border-slate-600\/50,
+.light .border-slate-700\/30 {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.light input,
+.light select,
+.light textarea {
+  background: rgba(241, 245, 249, 0.8) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: #1e293b !important;
+}
+
 @media print {
   * {
     -webkit-print-color-adjust: exact !important;

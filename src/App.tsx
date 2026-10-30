@@ -9,10 +9,15 @@ import LoanHistory from './components/LoanHistory';
 import RateComparator from './components/RateComparator';
 import CommitTimeline from './components/CommitTimeline';
 import ProjectPlan from './components/ProjectPlan';
+import FinancialDashboard from './components/FinancialDashboard';
+import ExcelImport from './components/ExcelImport';
+import GlobalSearch from './components/GlobalSearch';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { LoanParams, AmortizationRow, SavedLoan, PaymentRecord } from './types';
-import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale, GitBranch, FileText } from 'lucide-react';
+import { Calculator, LayoutDashboard, Table, Calendar, CreditCard, Zap, FolderOpen, Scale, GitBranch, FileText, TrendingUp, Upload, Sun, Moon } from 'lucide-react';
 
-function App() {
+function AppContent() {
+  const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('calculator');
   const [loanParams, setLoanParams] = useState<LoanParams>({
     amount: 1000,
@@ -126,6 +131,31 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleImportLoans = (importedLoans: Array<{ params: LoanParams; name: string; clientName: string }>) => {
+    const newLoans: SavedLoan[] = importedLoans.map((loan, index) => {
+      const data = calculateAmortization(loan.params);
+      const id = `loan_${Date.now()}_${index}`;
+      return {
+        id,
+        name: loan.name,
+        clientName: loan.clientName,
+        params: loan.params,
+        summary: {
+          monthlyPayment: data.monthlyPayment,
+          monthlyPaymentRounded: data.monthlyPaymentRounded,
+          totalPayment: data.totalPayment,
+          totalRoundedPayment: data.totalRoundedPayment,
+          totalInterest: data.totalInterest,
+        },
+        createdAt: new Date().toISOString(),
+        payments: [],
+        status: 'active',
+      };
+    });
+    setSavedLoans([...savedLoans, ...newLoans]);
+    alert(`✅ ${newLoans.length} préstamos importados exitosamente`);
+  };
+
   const handleRegisterPayment = (payment: PaymentRecord) => {
     const newPayments = [...payments, payment];
     setPayments(newPayments);
@@ -156,12 +186,14 @@ function App() {
   const tabs = [
     { id: 'calculator', label: 'Calculadora', icon: Calculator },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'financial', label: 'Métricas', icon: TrendingUp },
     { id: 'table', label: 'Tabla', icon: Table },
     { id: 'calendar', label: 'Calendario', icon: Calendar },
     { id: 'payments', label: 'Pagos', icon: CreditCard },
     { id: 'simulator', label: 'Pago Anticipado', icon: Zap },
     { id: 'comparator', label: 'Comparador', icon: Scale },
     { id: 'history', label: 'Historial', icon: FolderOpen },
+    { id: 'import', label: 'Importar', icon: Upload },
     { id: 'commits', label: 'Commits', icon: GitBranch },
     { id: 'plan', label: 'Plan', icon: FileText },
   ];
@@ -182,6 +214,14 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <button
+                onClick={toggleTheme}
+                className="p-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-slate-400 hover:text-white hover:border-blue-500/50 transition-all"
+                title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <GlobalSearch loans={savedLoans} onSelectLoan={handleLoadLoan} />
               <div className="text-right hidden md:block">
                 <p className="text-sm text-blue-300">Tasa Mora</p>
                 <div className="flex items-center gap-1">
@@ -284,6 +324,12 @@ function App() {
         {activeTab === 'plan' && (
           <ProjectPlan />
         )}
+        {activeTab === 'financial' && (
+          <FinancialDashboard loans={savedLoans} />
+        )}
+        {activeTab === 'import' && (
+          <ExcelImport onImport={handleImportLoans} />
+        )}
       </main>
 
       {/* Footer */}
@@ -378,6 +424,14 @@ function calculateAmortization(params: LoanParams) {
     totalInterest: Math.round(totalInterest * 100) / 100, 
     rows 
   };
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
 }
 
 export default App;
