@@ -15,7 +15,9 @@ import {
   RefreshCw,
   Settings,
   LogOut,
-  User
+  User,
+  Users,
+  AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -40,6 +42,8 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     { id: 'comparator', label: 'Comparador', icon: Scale, section: 'Herramientas' },
     { id: 'renegotiation', label: 'Renegociar', icon: RefreshCw, section: 'Herramientas' },
     { id: 'import', label: 'Importar', icon: Upload, section: 'Herramientas' },
+    { id: 'guarantors', label: 'Garantes', icon: Users, section: 'Herramientas' },
+    { id: 'penalties', label: 'Penalidades', icon: AlertTriangle, section: 'Herramientas' },
   ];
 
   const secondaryItems = [

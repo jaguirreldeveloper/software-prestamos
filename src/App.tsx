@@ -212,6 +212,12 @@ function AppContent() {
         return <PaymentRegister rows={amortizationData} payments={payments} onRegisterPayment={handleRegisterPayment} monthlyPayment={summary.monthlyPayment} />;
       case 'history':
         return <LoanHistory loans={savedLoans} onLoad={handleLoadLoan} onDelete={handleDeleteLoan} onUpdate={handleUpdateLoan} onDuplicate={handleDuplicateLoan} onExport={handleExportLoan} />;
+      case 'tour':
+        return <InteractiveTour />;
+      case 'guarantors':
+        return <GuarantorSystem />;
+      case 'penalties':
+        return <PenaltyCalculator loans={savedLoans} moraRate={moraRate} />;
       default:
         return (
           <div className="empty-state">

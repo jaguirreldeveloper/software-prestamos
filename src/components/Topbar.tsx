@@ -1,5 +1,6 @@
 import { Bell, Search, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import InteractiveTour from './InteractiveTour';
 
 export default function Topbar() {
   const { theme, toggleTheme } = useTheme();
@@ -35,6 +36,9 @@ export default function Topbar() {
         >
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
+
+        {/* Tour */}
+        <InteractiveTour />
       </div>
     </header>
   );
