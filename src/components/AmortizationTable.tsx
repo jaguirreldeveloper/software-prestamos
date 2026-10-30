@@ -657,100 +657,95 @@ export default function AmortizationTable({ rows, summary }: Props) {
                   const capitalData = prevRows.map((r: AmortizationRow) => r.capital);
 
                   return (
-                    <tr key={idx}>
-                      <td colSpan={viewMode === 'compact' ? 5 : viewMode === 'detailed' ? 9 : 7} className="p-0">
-                        <table className="w-full">
-                          <tbody>
-                            <tr
-                              onClick={() => viewMode === 'detailed' && row.number > 0 && setExpandedRow(isExpanded ? null : row.number)}
-                              onMouseEnter={() => setTooltipRow(row.number)}
-                              onMouseLeave={() => setTooltipRow(null)}
-                              className={'border-b border-slate-700/30 transition-colors relative print:border-gray-200 ' + (row.number === 0 ? 'bg-slate-900/30' : '') + (row.finalBalance === 0 ? ' bg-green-500/5' : '') + (isBreakeven ? ' bg-blue-500/10' : '') + (isHighestInterest ? ' bg-red-500/5' : '') + (isNextPayment ? ' bg-yellow-500/10' : '') + (viewMode === 'detailed' && row.number > 0 ? ' cursor-pointer hover:bg-blue-500/5' : ' hover:bg-blue-500/5')}
-                            >
-                              <td className="px-4 py-3 text-white font-medium print:text-black">
-                                <div className="flex items-center gap-2">
-                                  {row.number}
-                                  {isBreakeven && <span className="text-blue-400 print:hidden" title="Punto de equilibrio">🎯</span>}
-                                  {isHighestInterest && <span className="text-red-400 print:hidden" title="Mayor interes">🔺</span>}
-                                  {isNextPayment && <span className="text-yellow-400 print:hidden" title="Proximo pago">📅</span>}
+                    <>
+                      <tr
+                        key={idx}
+                        onClick={() => viewMode === 'detailed' && setExpandedRow(isExpanded ? null : row.number)}
+                        onMouseEnter={() => setTooltipRow(row.number)}
+                        onMouseLeave={() => setTooltipRow(null)}
+                        className={'border-b border-slate-700/30 transition-colors relative print:border-gray-200 ' + (row.finalBalance === 0 ? ' bg-green-500/5' : '') + (isBreakeven ? ' bg-blue-500/10' : '') + (isHighestInterest ? ' bg-red-500/5' : '') + (isNextPayment ? ' bg-yellow-500/10' : '') + (viewMode === 'detailed' ? ' cursor-pointer hover:bg-blue-500/5' : ' hover:bg-blue-500/5')}
+                      >
+                        <td className="px-4 py-3 text-white font-medium print:text-black">
+                          <div className="flex items-center gap-2">
+                            {row.number}
+                            {isBreakeven && <span className="text-blue-400 print:hidden" title="Punto de equilibrio">🎯</span>}
+                            {isHighestInterest && <span className="text-red-400 print:hidden" title="Mayor interes">🔺</span>}
+                            {isNextPayment && <span className="text-yellow-400 print:hidden" title="Proximo pago">📅</span>}
+                          </div>
+                        </td>
+                        {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-slate-300 print:text-black">Bs. {formatCurrency(row.initialBalance)}</td>}
+                        <td className="px-4 py-3 text-right text-white font-semibold print:text-black">Bs. {formatCurrency(row.payment)}</td>
+                        <td className="px-4 py-3 text-right text-red-400 print:text-red-600">Bs. {formatCurrency(row.interest)}</td>
+                        <td className="px-4 py-3 text-right text-green-400 print:text-green-600">Bs. {formatCurrency(row.capital)}</td>
+                        {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-white font-medium print:text-black">Bs. {formatCurrency(Math.max(0, row.finalBalance))}</td>}
+                        <td className="px-4 py-3 text-center text-slate-400 print:text-black">{formatDate(row.paymentDate)}</td>
+                        {viewMode === 'detailed' && (
+                          <>
+                            <td className="px-4 py-3 text-center print:hidden">
+                              <div className="flex items-center justify-center gap-2">
+                                <SparklineChart data={interestData} color="#ef4444" />
+                                <SparklineChart data={capitalData} color="#10b981" />
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 print:hidden">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
+                                  <div className="h-full bg-gradient-to-r from-green-500 to-cyan-400 rounded-full transition-all" style={{ width: progressPercent + '%' }}></div>
                                 </div>
-                              </td>
-                              {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-slate-300 print:text-black">Bs. {formatCurrency(row.initialBalance)}</td>}
-                              <td className="px-4 py-3 text-right text-white font-semibold print:text-black">{row.payment > 0 ? 'Bs. ' + formatCurrency(row.payment) : '-'}</td>
-                              <td className="px-4 py-3 text-right text-red-400 print:text-red-600">Bs. {formatCurrency(row.interest)}</td>
-                              <td className={'px-4 py-3 text-right print:text-green-600 ' + (row.capital < 0 ? 'text-red-400' : 'text-green-400')}>Bs. {formatCurrency(row.capital)}</td>
-                              {viewMode !== 'compact' && <td className="px-4 py-3 text-right text-white font-medium print:text-black">Bs. {formatCurrency(Math.max(0, row.finalBalance))}</td>}
-                              <td className="px-4 py-3 text-center text-slate-400 print:text-black">{formatDate(row.paymentDate)}</td>
-                              {viewMode === 'detailed' && (
-                                <>
-                                  <td className="px-4 py-3 text-center print:hidden">
-                                    <div className="flex items-center justify-center gap-2">
-                                      <SparklineChart data={interestData} color="#ef4444" />
-                                      <SparklineChart data={capitalData} color="#10b981" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 print:hidden">
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-green-500 to-cyan-400 rounded-full transition-all" style={{ width: progressPercent + '%' }}></div>
-                                      </div>
-                                      <span className="text-xs text-slate-400 w-10">{progressPercent.toFixed(0)}%</span>
-                                    </div>
-                                  </td>
-                                </>
-                              )}
-                            </tr>
-                            {isExpanded && viewMode === 'detailed' && row.number > 0 && (
-                              <tr className="bg-slate-900/50 print:hidden">
-                                <td colSpan={8} className="px-4 py-4">
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div>
-                                      <p className="text-xs text-slate-400 mb-1">% Interes</p>
-                                      <div className="flex items-center gap-2">
-                                        <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden"><div className="h-full bg-red-500 rounded-full" style={{ width: interestPercent + '%' }}></div></div>
-                                        <span className="text-xs text-red-400 font-semibold">{interestPercent.toFixed(1)}%</span>
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-400 mb-1">% Capital</p>
-                                      <div className="flex items-center gap-2">
-                                        <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden"><div className="h-full bg-green-500 rounded-full" style={{ width: capitalPercent + '%' }}></div></div>
-                                        <span className="text-xs text-green-400 font-semibold">{capitalPercent.toFixed(1)}%</span>
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-400 mb-1">Composicion</p>
-                                      <div className="flex gap-0 h-3 rounded-full overflow-hidden">
-                                        <div className="bg-red-500" style={{ width: interestPercent + '%' }}></div>
-                                        <div className="bg-green-500" style={{ width: capitalPercent + '%' }}></div>
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-400 mb-1">Acciones</p>
-                                      <button onClick={(e) => { e.stopPropagation(); handleCopyRow(row); }} className="flex items-center gap-1 px-2 py-1 bg-slate-700/50 hover:bg-slate-700 rounded text-xs text-slate-300 transition-all">
-                                        {copiedRow === row.number ? <><CheckCircle2 className="w-3 h-3 text-green-400" /> Copiado</> : <><Copy className="w-3 h-3" /> Copiar</>}
-                                      </button>
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
+                                <span className="text-xs text-slate-400 w-10">{progressPercent.toFixed(0)}%</span>
+                              </div>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                      {isExpanded && viewMode === 'detailed' && (
+                        <tr key={`expanded-${idx}`} className="bg-slate-900/50 print:hidden">
+                          <td colSpan={9} className="px-4 py-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div>
+                                <p className="text-xs text-slate-400 mb-1">% Interes</p>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden"><div className="h-full bg-red-500 rounded-full" style={{ width: interestPercent + '%' }}></div></div>
+                                  <span className="text-xs text-red-400 font-semibold">{interestPercent.toFixed(1)}%</span>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-400 mb-1">% Capital</p>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden"><div className="h-full bg-green-500 rounded-full" style={{ width: capitalPercent + '%' }}></div></div>
+                                  <span className="text-xs text-green-400 font-semibold">{capitalPercent.toFixed(1)}%</span>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-400 mb-1">Composicion</p>
+                                <div className="flex gap-0 h-3 rounded-full overflow-hidden">
+                                  <div className="bg-red-500" style={{ width: interestPercent + '%' }}></div>
+                                  <div className="bg-green-500" style={{ width: capitalPercent + '%' }}></div>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-400 mb-1">Acciones</p>
+                                <button onClick={(e) => { e.stopPropagation(); handleCopyRow(row); }} className="flex items-center gap-1 px-2 py-1 bg-slate-700/50 hover:bg-slate-700 rounded text-xs text-slate-300 transition-all">
+                                  {copiedRow === row.number ? <><CheckCircle2 className="w-3 h-3 text-green-400" /> Copiado</> : <><Copy className="w-3 h-3" /> Copiar</>}
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   );
                 })}
               </tbody>
               <tfoot>
                 <tr className="bg-slate-900/70 border-t-2 border-blue-500/30 print:bg-gray-100 print:border-gray-400">
                   <td className="px-4 py-3 text-white font-bold print:text-black">TOTAL</td>
-                  {viewMode !== 'compact' && <td className="px-4 py-3 print:hidden"></td>}
+                  {viewMode !== 'compact' && <td className="px-4 py-3"></td>}
                   <td className="px-4 py-3 text-right text-white font-bold print:text-black">Bs. {formatCurrency(totalPayments)}</td>
                   <td className="px-4 py-3 text-right text-red-400 font-bold print:text-red-600">Bs. {formatCurrency(totalInterest)}</td>
                   <td className="px-4 py-3 text-right text-green-400 font-bold print:text-green-600">Bs. {formatCurrency(totalCapital)}</td>
-                  {viewMode !== 'compact' && <td className="px-4 py-3 print:hidden"></td>}
-                  <td className="px-4 py-3 print:hidden"></td>
+                  {viewMode !== 'compact' && <td className="px-4 py-3"></td>}
+                  <td className="px-4 py-3"></td>
                   {viewMode === 'detailed' && <><td className="px-4 py-3 print:hidden"></td><td className="px-4 py-3 print:hidden"></td></>}
                 </tr>
               </tfoot>

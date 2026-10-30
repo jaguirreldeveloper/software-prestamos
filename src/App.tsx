@@ -292,28 +292,51 @@ function calculateAmortization(params: LoanParams) {
   const { amount, monthlyRate, term, startDate } = params;
   const rate = monthlyRate / 100;
   
+  // Calcular cuota mensual con fórmula de amortización francesa
   const monthlyPayment = amount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-  const totalPayment = monthlyPayment * term;
-  const totalInterest = totalPayment - amount;
-
+  
   const rows: AmortizationRow[] = [];
   let balance = amount;
+  let totalInterest = 0;
+  let totalPayment = 0;
 
-  for (let i = 0; i <= term; i++) {
-    const interest = balance * rate;
-    const capital = monthlyPayment - interest;
-    const newBalance = balance - capital;
+  // Generar solo las cuotas reales (1 a term)
+  for (let i = 1; i <= term; i++) {
+    // Calcular interés sobre el saldo actual
+    const interest = Math.round(balance * rate * 100) / 100;
     
+    // En la última cuota, ajustar el capital para que el saldo final sea exactamente 0
+    let capital: number;
+    let payment: number;
+    
+    if (i === term) {
+      // Última cuota: el capital es igual al saldo restante
+      capital = Math.round(balance * 100) / 100;
+      payment = Math.round((capital + interest) * 100) / 100;
+    } else {
+      // Cuotas normales
+      capital = Math.round((monthlyPayment - interest) * 100) / 100;
+      payment = Math.round(monthlyPayment * 100) / 100;
+    }
+    
+    // Calcular nuevo saldo
+    const newBalance = Math.round((balance - capital) * 100) / 100;
+    
+    // Calcular fecha de pago
     const paymentDate = new Date(startDate);
     paymentDate.setMonth(paymentDate.getMonth() + i);
 
+    // Acumular totales
+    totalInterest += interest;
+    totalPayment += payment;
+
     rows.push({
       number: i,
-      initialBalance: i === 0 ? amount : balance,
-      payment: i === 0 ? 0 : monthlyPayment,
+      initialBalance: Math.round(balance * 100) / 100,
+      payment: payment,
       interest: interest,
-      capital: i === 0 ? -interest : capital,
-      finalBalance: i === 0 ? amount : (i === term ? 0 : newBalance),
+      capital: capital,
+      finalBalance: newBalance,
       paymentDate: paymentDate.toISOString().split('T')[0],
       isPaid: false,
     });
@@ -321,7 +344,12 @@ function calculateAmortization(params: LoanParams) {
     balance = newBalance;
   }
 
-  return { monthlyPayment, totalPayment, totalInterest, rows };
+  return { 
+    monthlyPayment: Math.round(monthlyPayment * 100) / 100, 
+    totalPayment: Math.round(totalPayment * 100) / 100, 
+    totalInterest: Math.round(totalInterest * 100) / 100, 
+    rows 
+  };
 }
 
 export default App;
