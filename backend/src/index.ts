@@ -13,6 +13,8 @@ import loanRoutes from './routes/loan.routes';
 import paymentRoutes from './routes/payment.routes';
 import guarantorRoutes from './routes/guarantor.routes';
 import brandRoutes from './routes/brand.routes';
+import stripeRoutes from './routes/stripe.routes';
+import paypalRoutes from './routes/paypal.routes';
 
 // Crear aplicación Express
 const app = express();
@@ -34,6 +36,8 @@ app.use('/api/loans', loanRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/guarantors', guarantorRoutes);
 app.use('/api/brand', brandRoutes);
+app.use('/api/payments/stripe', stripeRoutes);
+app.use('/api/payments/paypal', paypalRoutes);
 
 // Ruta de salud
 app.get('/health', (req, res) => {
@@ -55,6 +59,8 @@ app.get('/', (req, res) => {
       payments: '/api/payments',
       guarantors: '/api/guarantors',
       brand: '/api/brand',
+      stripe: '/api/payments/stripe',
+      paypal: '/api/payments/paypal',
       health: '/health'
     }
   });
