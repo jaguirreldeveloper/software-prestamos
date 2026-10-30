@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  role          String    @default("viewer") // admin, manager, operator, viewer
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  loans         Loan[]
+  payments      Payment[]
+  guarantors    Guarantor[]
+  brandConfig   BrandConfig?
+  
+  @@map("users")
+}
+
+// Modelo de Préstamo
+model Loan {
+  id            String    @id @default(uuid())
+  userId        String
+  name          String
+  clientName    String
+  amount        Decimal   @db.Decimal(15, 2)
+  monthlyRate   Decimal   @db.Decimal(5, 2)
+  term          Int
+  startDate     DateTime  @db.Date
+  status        String    @default("active") // active, completed, cancelled
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  installments  Installment[]
+  payments      Payment[]
+  
+  @@map("loans")
+}
+
+// Modelo de Cuota/Instalment
+model Installment {
+  id                    String    @id @default(uuid())
+  loanId                String
+  number                Int
+  initialBalance        Decimal   @db.Decimal(15, 2)
+  payment               Decimal   @db.Decimal(15, 2)
+  interest              Decimal   @db.Decimal(15, 2)
+  capital               Decimal   @db.Decimal(15, 2)
+  finalBalance          Decimal   @db.Decimal(15, 2)
+  paymentDate           DateTime  @db.Date
+  isPaid                Boolean   @default(false)
+  paidDate              DateTime? @db.Date
+  paidAmount            Decimal?  @db.Decimal(15, 2)
+  extraPayment          Decimal   @default(0) @db.Decimal(15, 2)
+  roundedPayment        Decimal?  @db.Decimal(15, 2)
+  roundingDifference    Decimal?  @db.Decimal(15, 2)
+  createdAt             DateTime  @default(now())
+  
+  // Relaciones
+  loan                  Loan      @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  payments              Payment[]
+  
+  @@map("installments")
+}
+
+// Modelo de Pago
+model Payment {
+  id              String    @id @default(uuid())
+  loanId          String
+  installmentId   String?
+  userId          String
+  amount          Decimal   @db.Decimal(15, 2)
+  paidDate        DateTime  @db.Date
+  notes           String?
+  createdAt       DateTime  @default(now())
+  
+  // Relaciones
+  loan            Loan        @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  installment     Installment? @relation(fields: [installmentId], references: [id])
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("payments")
+}
+
+// Modelo de Garante
+model Guarantor {
+  id                    String    @id @default(uuid())
+  userId                String
+  name                  String
+  ci                    String
+  phone                 String?
+  email                 String?
+  income                Decimal   @db.Decimal(15, 2)
+  existingGuarantees    Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  // Relaciones
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("guarantors")
+}
+
+// Modelo de Configuración de Marca
+model BrandConfig {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  appName         String
+  tagline         String?
+  primaryColor    String
+  secondaryColor  String
+  logoUrl         String?
+  contactEmail    String?
+  contactPhone    String?
+  company         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("brand_configs")
+}
